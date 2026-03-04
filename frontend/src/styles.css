@@ -1,0 +1,428 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap");
+
+:root {
+  color-scheme: dark;
+  --bg: #050509;
+  --bg-elevated: rgba(18, 18, 28, 0.96);
+  --bg-elevated-soft: rgba(14, 14, 24, 0.92);
+  --accent: #4f46e5;
+  --accent-soft: rgba(79, 70, 229, 0.5);
+  --accent-glow: rgba(79, 70, 229, 0.35);
+  --accent-secondary: #06b6d4;
+  --border-subtle: rgba(148, 163, 184, 0.25);
+  --text: #e5e7eb;
+  --text-soft: #9ca3af;
+  --error: #f97373;
+  --success: #22c55e;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: radial-gradient(circle at top, #0f172a 0, #020617 50%, #000 100%);
+  color: var(--text);
+}
+
+.app-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 24px 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.background-glow {
+  position: absolute;
+  inset: -40%;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(6, 182, 212, 0.18), transparent 55%),
+    radial-gradient(circle at 90% 10%, rgba(79, 70, 229, 0.25), transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(15, 23, 42, 0.95), #020617 65%);
+  filter: blur(6px);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 960px;
+  margin: auto;
+  background: linear-gradient(
+      135deg,
+      rgba(15, 23, 42, 0.96),
+      rgba(17, 24, 39, 0.96)
+    );
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.8),
+    0 0 0 1px rgba(15, 23, 42, 0.9),
+    0 0 50px 0 var(--accent-glow);
+  padding: 20px 20px 18px;
+  backdrop-filter: blur(18px);
+}
+
+.app-header {
+  padding: 8px 4px 18px;
+  border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+  margin-bottom: 16px;
+}
+
+.app-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+  background: linear-gradient(120deg, #e5e7eb, #c7d2fe, #a5f3fc);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.app-header p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.card {
+  border-radius: 18px;
+  border: 1px solid var(--border-subtle);
+  background: radial-gradient(
+      circle at top left,
+      rgba(79, 70, 229, 0.18),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(6, 182, 212, 0.18),
+      transparent 55%
+    ),
+    var(--bg-elevated);
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.85),
+    0 0 0 1px rgba(15, 23, 42, 0.9);
+  padding: 18px 16px 16px;
+}
+
+.card + .card {
+  margin-top: 14px;
+}
+
+.card-main h2,
+.card-secondary h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-inline {
+  flex-direction: row;
+  gap: 8px;
+}
+
+.field-inline > div {
+  flex: 1;
+}
+
+label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-soft);
+}
+
+input,
+select,
+textarea {
+  border-radius: 12px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.96),
+    rgba(17, 24, 39, 0.98)
+  );
+  color: var(--text);
+  padding: 9px 11px;
+  font-size: 0.88rem;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(148, 163, 184, 0.7);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 1px var(--accent-secondary), 0 0 0 6px rgba(56, 189, 248, 0.15);
+}
+
+select {
+  cursor: pointer;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.field-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+.primary-button {
+  margin-top: 4px;
+  border-radius: 999px;
+  border: none;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: radial-gradient(
+      circle at 0% 0%,
+      rgba(6, 182, 212, 0.45),
+      transparent 55%
+    ),
+    linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  color: white;
+  cursor: pointer;
+  box-shadow:
+    0 12px 24px rgba(15, 23, 42, 0.9),
+    0 0 30px 0 rgba(59, 130, 246, 0.55);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.primary-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 16px 30px rgba(15, 23, 42, 0.9),
+    0 0 42px 0 rgba(59, 130, 246, 0.75);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+  box-shadow:
+    0 10px 18px rgba(15, 23, 42, 0.9),
+    0 0 28px 0 rgba(59, 130, 246, 0.6);
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow:
+    0 8px 16px rgba(15, 23, 42, 0.9),
+    0 0 18px 0 rgba(59, 130, 246, 0.35);
+}
+
+.alert {
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  border: 1px solid transparent;
+}
+
+.alert-error {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: var(--error);
+}
+
+.alert-success {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: var(--success);
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  font-size: 0.72rem;
+  color: var(--text-soft);
+}
+
+.muted {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.booking-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.booking-item {
+  border-radius: 14px;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  background: linear-gradient(
+    120deg,
+    rgba(15, 23, 42, 0.98),
+    rgba(17, 24, 39, 0.96)
+  );
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.booking-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.booking-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.service-name {
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.booking-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.76rem;
+  color: var(--text-soft);
+}
+
+.booking-extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.76rem;
+  color: var(--text-soft);
+}
+
+.phone {
+  font-variant-numeric: tabular-nums;
+}
+
+.comment {
+  opacity: 0.8;
+}
+
+.status {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.status-pending {
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.6);
+  color: #facc15;
+}
+
+.status-confirmed {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.6);
+  color: #4ade80;
+}
+
+.status-done {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  color: #60a5fa;
+}
+
+.status-cancelled {
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  color: #fca5a5;
+}
+
+.app-footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(31, 41, 55, 0.9);
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+@media (min-width: 800px) {
+  .app-container {
+    padding: 22px 22px 20px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 599px) {
+  .app-container {
+    border-radius: 18px;
+    padding: 16px 14px 14px;
+  }
+
+  .field-inline {
+    flex-direction: column;
+  }
+}
+
