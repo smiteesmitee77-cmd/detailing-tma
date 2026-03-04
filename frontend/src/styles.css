@@ -1,17 +1,17 @@
 :root {
   color-scheme: dark;
-  --bg: #000000;
-  --bg-elevated: #050509;
-  --bg-elevated-soft: #050509;
-  --accent: #0a84ff; /* iOS blue */
-  --accent-soft: rgba(10, 132, 255, 0.4);
-  --accent-glow: rgba(10, 132, 255, 0.18);
-  --accent-secondary: #64d2ff;
-  --border-subtle: rgba(120, 120, 128, 0.4);
+  --bg: #050509;
+  --bg-elevated: #14151a;
+  --bg-elevated-soft: #16171d;
+  --accent: #25c2a0;
+  --accent-soft: rgba(37, 194, 160, 0.3);
+  --accent-glow: rgba(37, 194, 160, 0.25);
+  --accent-secondary: #5be7c4;
+  --border-subtle: rgba(255, 255, 255, 0.06);
   --text: #f5f5f7;
   --text-soft: #8e8e93;
-  --error: #f97373;
-  --success: #22c55e;
+  --error: #ff453a;
+  --success: #32d74b;
 }
 
 *,
@@ -25,7 +25,7 @@ body {
   min-height: 100vh;
   font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text",
     "Segoe UI", sans-serif;
-  background: radial-gradient(circle at top, #111111 0, #000000 55%, #000000 100%);
+  background: radial-gradient(circle at top, #0b0c10 0, #020304 55%, #000 100%);
   color: var(--text);
 }
 
@@ -43,11 +43,11 @@ body {
   position: absolute;
   inset: -40%;
   background:
-    radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.05), transparent 55%),
-    radial-gradient(circle at 100% 0%, rgba(10, 132, 255, 0.25), transparent 55%),
+    radial-gradient(circle at 0% 0%, rgba(37, 194, 160, 0.35), transparent 55%),
+    radial-gradient(circle at 100% 0%, rgba(10, 132, 255, 0.2), transparent 55%),
     radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.95), #000 70%);
-  filter: blur(16px);
-  opacity: 0.7;
+  filter: blur(22px);
+  opacity: 0.8;
   z-index: -1;
 }
 
@@ -55,26 +55,26 @@ body {
   width: 100%;
   max-width: 960px;
   margin: auto;
-  background: #050509;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(145deg, #101117, #06070b);
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 32px 80px rgba(0, 0, 0, 0.9),
-    0 0 0 0.5px rgba(255, 255, 255, 0.06),
+    0 28px 80px rgba(0, 0, 0, 0.95),
+    0 0 0 0.5px rgba(255, 255, 255, 0.05),
     0 0 60px 0 var(--accent-glow);
   padding: 20px 20px 18px;
-  backdrop-filter: blur(26px);
+  backdrop-filter: blur(32px);
 }
 
 .app-header {
   padding: 8px 4px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 16px;
 }
 
 .app-header h1 {
   margin: 0 0 4px;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   letter-spacing: -0.02em;
   font-weight: 600;
   color: var(--text);
@@ -87,17 +87,17 @@ body {
 }
 
 .card {
-  border-radius: 18px;
+  border-radius: 24px;
   border: 1px solid var(--border-subtle);
   background: radial-gradient(
       circle at top left,
-      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.02),
       transparent 55%
     ),
-    var(--bg-elevated);
+    linear-gradient(145deg, #171821, #101117);
   box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.9),
-    0 0 0 0.5px rgba(255, 255, 255, 0.02);
+    0 16px 40px rgba(0, 0, 0, 0.9),
+    0 0 0 0.5px rgba(255, 255, 255, 0.03);
   padding: 18px 16px 16px;
 }
 
@@ -108,7 +108,8 @@ body {
 .card-main h2,
 .card-secondary h2 {
   margin: 0 0 10px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  font-weight: 500;
 }
 
 .booking-form {
@@ -142,12 +143,12 @@ label {
 input,
 select,
 textarea {
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: #050509;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #101117;
   color: var(--text);
-  padding: 9px 11px;
-  font-size: 0.88rem;
+  padding: 10px 12px;
+  font-size: 0.9rem;
   outline: none;
   transition:
     border-color 0.15s ease,
@@ -157,16 +158,16 @@ textarea {
 
 input::placeholder,
 textarea::placeholder {
-  color: rgba(148, 163, 184, 0.7);
+  color: rgba(142, 142, 147, 0.9);
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--accent-secondary);
+  border-color: var(--accent);
   box-shadow:
-    0 0 0 1px var(--accent-secondary),
-    0 0 0 6px rgba(100, 210, 255, 0.15);
+    0 0 0 1px var(--accent),
+    0 0 0 6px rgba(37, 194, 160, 0.18);
 }
 
 select {
@@ -185,23 +186,18 @@ textarea {
 }
 
 .primary-button {
-  margin-top: 4px;
+  margin-top: 6px;
   border-radius: 999px;
   border: none;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  background: radial-gradient(
-      circle at 0% 0%,
-      rgba(100, 210, 255, 0.55),
-      transparent 55%
-    ),
-    linear-gradient(135deg, var(--accent), #0060df);
-  color: white;
+  padding: 11px 18px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #25c2a0, #12b48f);
+  color: #000;
   cursor: pointer;
   box-shadow:
-    0 16px 32px rgba(0, 0, 0, 0.9),
-    0 0 28px 0 rgba(10, 132, 255, 0.6);
+    0 18px 36px rgba(0, 0, 0, 0.9),
+    0 0 30px 0 rgba(37, 194, 160, 0.7);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -215,25 +211,25 @@ textarea {
 
 .primary-button:hover {
   transform: translateY(-1px);
-  filter: brightness(1.05);
+  filter: brightness(1.03);
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.95),
-    0 0 40px 0 rgba(10, 132, 255, 0.8);
+    0 22px 44px rgba(0, 0, 0, 0.95),
+    0 0 40px 0 rgba(37, 194, 160, 0.9);
 }
 
 .primary-button:active {
   transform: translateY(0);
   box-shadow:
-    0 10px 22px rgba(0, 0, 0, 0.9),
-    0 0 24px 0 rgba(10, 132, 255, 0.6);
+    0 12px 26px rgba(0, 0, 0, 0.9),
+    0 0 24px 0 rgba(37, 194, 160, 0.7);
 }
 
 .primary-button:disabled {
   opacity: 0.6;
   cursor: default;
   box-shadow:
-    0 8px 16px rgba(15, 23, 42, 0.9),
-    0 0 18px 0 rgba(59, 130, 246, 0.35);
+    0 10px 20px rgba(0, 0, 0, 0.8),
+    0 0 18px 0 rgba(37, 194, 160, 0.4);
 }
 
 .alert {
