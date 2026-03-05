@@ -1,11 +1,11 @@
 :root {
-  --bg:          var(--tg-theme-bg-color, #050508);
-  --bg-card:     var(--tg-theme-secondary-bg-color, #0d0d14);
+  --bg:          #050508;
+  --bg-card:     #0d0d14;
   --accent:      var(--tg-theme-button-color, #6e9fff);
-  --accent-text: var(--tg-theme-button-text-color, #fff);
-  --text:        var(--tg-theme-text-color, #f2f2f7);
-  --text-soft:   var(--tg-theme-hint-color, #8e8ea0);
-  --text-muted:  #3a3a4a;
+  --accent-text: #fff;
+  --text:        #f2f2f7;
+  --text-soft:   #a0a8c0;
+  --text-muted:  #5a5a72;
   --link:        var(--tg-theme-link-color, #6e9fff);
 
   --glass-bg:      rgba(255, 255, 255, 0.04);
@@ -30,6 +30,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  color-scheme: dark;
 }
 
 body {
@@ -39,7 +40,9 @@ body {
     "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--text);
+  font-weight: 450;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
