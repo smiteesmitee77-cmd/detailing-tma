@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DatePicker } from "./DatePicker";
+import { TimePicker } from "./TimePicker";
 
 type Service = {
   id: string;
@@ -295,15 +297,12 @@ function App() {
             <div className="field field-inline">
               <div>
                 <label>Дата</label>
-                <input
-                  type="date"
+                <DatePicker
                   value={date}
                   min={today}
-                  placeholder="дд.мм.гггг"
-                  onChange={(e) => {
-                    const newDate = e.target.value;
-                    setDate(newDate);
-                    if (newDate === today && time) {
+                  onChange={(v) => {
+                    setDate(v);
+                    if (v === today && time) {
                       const now = new Date();
                       const nowMin = now.getHours() * 60 + now.getMinutes();
                       const [h, m] = time.split(":").map(Number);
@@ -314,13 +313,11 @@ function App() {
               </div>
               <div>
                 <label>Время</label>
-                <input
-                  type="time"
+                <TimePicker
                   value={time}
                   min={minTime}
                   max={maxTime}
-                  placeholder="09:00"
-                  onChange={(e) => setTime(e.target.value)}
+                  onChange={setTime}
                 />
               </div>
             </div>

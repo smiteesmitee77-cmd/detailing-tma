@@ -299,26 +299,6 @@ select option {
   color: var(--text);
 }
 
-/* Date & time: нормализуем высоту и убираем браузерные декорации */
-input[type="date"],
-input[type="time"] {
-  padding: 0 14px;
-  height: 46px;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.5);
-  cursor: pointer;
-  opacity: 0.5;
-  flex-shrink: 0;
-}
-
-/* Пока значение не выбрано — текст как у placeholder */
-input[type="date"]:not(:valid),
-input[type="time"]:not(:valid) {
-  color: var(--text-muted);
-}
 
 textarea {
   resize: none;
@@ -454,6 +434,175 @@ textarea {
   color: rgba(200, 210, 240, 0.6);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+/* ─── Custom Picker (Date / Time) ─── */
+.custom-picker {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select__trigger--placeholder span {
+  color: rgba(160, 175, 210, 0.55);
+}
+
+.picker-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(18, 18, 30, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  animation: dropdownIn 0.18s ease;
+  padding: 12px;
+}
+
+/* ── Drum picker ── */
+.picker-drums {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+
+.drum-wrap {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+
+.drum-scroll {
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.drum-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.drum-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: rgba(200, 210, 240, 0.4);
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: color 0.15s ease, font-size 0.15s ease;
+  user-select: none;
+}
+
+.drum-item--active {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.drum-fade-top,
+.drum-fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.drum-fade-top {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(18, 18, 30, 0.95) 0%, transparent 100%);
+}
+
+.drum-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(18, 18, 30, 0.95) 0%, transparent 100%);
+}
+
+.drum-selector {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  right: 4px;
+  height: 40px;
+  transform: translateY(-50%);
+  border-radius: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.picker-confirm {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: rgba(110, 159, 255, 0.18);
+  border: 1px solid rgba(110, 159, 255, 0.3);
+  color: rgba(180, 210, 255, 0.95);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.picker-confirm:hover {
+  background: rgba(110, 159, 255, 0.28);
+}
+
+/* ── Time slots ── */
+.picker-dropdown--time {
+  padding: 8px;
+}
+
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.time-slots::-webkit-scrollbar {
+  display: none;
+}
+
+.time-slot {
+  padding: 10px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(200, 210, 240, 0.75);
+  font-size: 0.88rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  text-align: center;
+}
+
+.time-slot:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text);
+}
+
+.time-slot--active {
+  background: rgba(110, 159, 255, 0.18);
+  border-color: rgba(110, 159, 255, 0.45);
+  color: rgba(180, 210, 255, 0.95);
 }
 
 /* ─── Field hint ─── */
