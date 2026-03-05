@@ -161,6 +161,16 @@ function App() {
 
   const today = new Date().toISOString().slice(0, 10);
 
+  // Ограничения времени зависят от длительности выбранной услуги
+  const selectedService = services.find((s) => s.id === serviceId);
+  const durationMin = selectedService?.durationMinutes ?? 60;
+  const maxStartMin = 20 * 60 - durationMin; // последнее время начала, чтобы уложиться до 20:00
+  const minTime = "09:00";
+  const maxTime = [
+    Math.floor(maxStartMin / 60).toString().padStart(2, "0"),
+    (maxStartMin % 60).toString().padStart(2, "0"),
+  ].join(":");
+
   return (
     <div className="app-root">
       <div className="background-glow" />
@@ -209,6 +219,8 @@ function App() {
                 <input
                   type="time"
                   value={time}
+                  min={minTime}
+                  max={maxTime}
                   onChange={(e) => setTime(e.target.value)}
                 />
               </div>

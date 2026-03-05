@@ -70,6 +70,56 @@ const services: Service[] = [
   },
 ];
 
+/** Рабочие часы в минутах от начала суток */
+const WORK_START_MIN = 9 * 60;  // 09:00
+const WORK_END_MIN   = 20 * 60; // 20:00
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + (m || 0);
+}
+
+function minutesToTime(minutes: number): string {
+  return [
+    Math.floor(minutes / 60).toString().padStart(2, "0"),
+    (minutes % 60).toString().padStart(2, "0"),
+  ].join(":");
+}
+
+/**
+ * Проверяет рабочие часы и конфликты с уже существующими записями.
+ * Возвращает строку с ошибкой или null если всё ок.
+ */
+function validateTimeSlot(date: string, time: string, durationMinutes: number): string | null {
+  const startMin = timeToMinutes(time);
+  const endMin   = startMin + durationMinutes;
+
+  if (startMin < WORK_START_MIN) {
+    return `Мы работаем с ${minutesToTime(WORK_START_MIN)}. Выберите другое время.`;
+  }
+  if (endMin > WORK_END_MIN) {
+    const latestStart = minutesToTime(WORK_END_MIN - durationMinutes);
+    return `Услуга не укладывается в рабочие часы (до ${minutesToTime(WORK_END_MIN)}). Последнее доступное время: ${latestStart}.`;
+  }
+
+  const existing = getAllBookings().filter(
+    (b) => b.date === date && b.status !== "cancelled"
+  );
+
+  for (const booking of existing) {
+    const svc = services.find((s) => s.id === booking.serviceId);
+    const dur = svc?.durationMinutes ?? 60;
+    const bStart = timeToMinutes(booking.time);
+    const bEnd   = bStart + dur;
+
+    if (startMin < bEnd && bStart < endMin) {
+      return `Это время занято (${booking.time}–${minutesToTime(bEnd)}). Выберите другой слот.`;
+    }
+  }
+
+  return null;
+}
+
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
@@ -100,6 +150,11 @@ app.post("/api/bookings", async (req, res) => {
   const service = services.find((s) => s.id === serviceId);
   if (!service) {
     return res.status(400).json({ error: "Выбранная услуга не найдена." });
+  }
+
+  const slotError = validateTimeSlot(date, time, service.durationMinutes);
+  if (slotError) {
+    return res.status(409).json({ error: slotError });
   }
 
   const rawInitData = req.headers["x-telegram-init-data"];
