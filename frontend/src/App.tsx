@@ -194,12 +194,28 @@ function App() {
   return (
     <div className="app-root">
       <div className="bg-shapes" aria-hidden="true">
+        <svg className="bg-poly" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="0,0 195,120 0,240"        fill="rgba(60,80,180,0.18)" />
+          <polygon points="195,120 390,0 390,200"    fill="rgba(90,50,160,0.14)" />
+          <polygon points="0,0 390,0 195,120"        fill="rgba(40,60,140,0.20)" />
+          <polygon points="195,120 390,200 280,320"  fill="rgba(100,60,200,0.12)" />
+          <polygon points="0,240 195,120 280,320"    fill="rgba(50,90,200,0.15)" />
+          <polygon points="0,240 280,320 0,480"      fill="rgba(30,50,120,0.18)" />
+          <polygon points="280,320 390,200 390,420"  fill="rgba(80,40,160,0.13)" />
+          <polygon points="280,320 390,420 180,500"  fill="rgba(60,70,180,0.16)" />
+          <polygon points="0,480 280,320 180,500"    fill="rgba(40,80,160,0.12)" />
+          <polygon points="0,480 180,500 0,660"      fill="rgba(20,40,100,0.20)" />
+          <polygon points="180,500 390,420 390,620"  fill="rgba(70,50,150,0.14)" />
+          <polygon points="180,500 390,620 220,700"  fill="rgba(50,60,170,0.13)" />
+          <polygon points="0,660 180,500 220,700"    fill="rgba(30,50,130,0.17)" />
+          <polygon points="0,660 220,700 0,844"      fill="rgba(20,30,90,0.22)" />
+          <polygon points="220,700 390,620 390,844"  fill="rgba(60,40,140,0.16)" />
+          <polygon points="0,844 220,700 390,844"    fill="rgba(30,40,110,0.18)" />
+        </svg>
+        <div className="bg-blur-overlay" />
         <div className="bg-shape bg-shape--circle1" />
         <div className="bg-shape bg-shape--circle2" />
         <div className="bg-shape bg-shape--circle3" />
-        <div className="bg-shape bg-shape--rect1" />
-        <div className="bg-shape bg-shape--rect2" />
-        <div className="bg-shape bg-shape--oval1" />
       </div>
       <main className="app-container" style={isInTelegram ? { paddingBottom: "80px" } : undefined}>
         <header className="app-header">
