@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { createBooking, getAllBookings, updateBookingStatus } from "./db";
+import { createBooking, getAllBookings, updateBookingStatus, deleteOldBookings } from "./db";
 import { bot, notifyAdmin } from "./bot";
 
 const app = express();
@@ -101,7 +101,28 @@ app.patch("/api/bookings/:id/status", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Backend listening on http://localhost:${PORT}`);
+  scheduleCleanup();
 });
+
+const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 часа
+
+function runCleanup() {
+  try {
+    const deleted = deleteOldBookings();
+    if (deleted > 0) {
+      console.log(`[cleanup] Удалено устаревших записей: ${deleted}`);
+    }
+  } catch (e) {
+    console.error("[cleanup] Ошибка при очистке старых записей:", e);
+  }
+}
+
+function scheduleCleanup() {
+  runCleanup();
+  const timer = setInterval(runCleanup, CLEANUP_INTERVAL_MS);
+  // unref — чтобы таймер не блокировал graceful shutdown процесса
+  timer.unref();
+}
 
 if (process.env.BOT_TOKEN) {
   bot.launch().then(() => {

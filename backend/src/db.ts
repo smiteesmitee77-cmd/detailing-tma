@@ -66,4 +66,16 @@ export const saveMessageRef = (bookingId: number, chatId: string, messageId: num
   db.prepare("UPDATE bookings SET msgChatId = ?, msgId = ? WHERE id = ?").run(chatId, messageId, bookingId);
 };
 
+const RETENTION_DAYS = 7;
+
+/**
+ * Удаляет записи, созданные более RETENTION_DAYS дней назад.
+ * Возвращает количество удалённых строк.
+ */
+export const deleteOldBookings = (): number => {
+  const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const result = db.prepare("DELETE FROM bookings WHERE createdAt < ?").run(cutoff);
+  return result.changes as number;
+};
+
 export default db;
