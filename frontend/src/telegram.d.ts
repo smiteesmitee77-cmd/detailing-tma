@@ -10,14 +10,15 @@ interface TelegramWebAppMainButton {
   text: string;
   isVisible: boolean;
   isActive: boolean;
-  show(): void;
-  hide(): void;
-  enable(): void;
-  disable(): void;
-  onClick(fn: () => void): void;
-  offClick(fn: () => void): void;
-  showProgress(leaveActive?: boolean): void;
-  hideProgress(): void;
+  setText(text: string): TelegramWebAppMainButton;
+  show(): TelegramWebAppMainButton;
+  hide(): TelegramWebAppMainButton;
+  enable(): TelegramWebAppMainButton;
+  disable(): TelegramWebAppMainButton;
+  onClick(fn: () => void): TelegramWebAppMainButton;
+  offClick(fn: () => void): TelegramWebAppMainButton;
+  showProgress(leaveActive?: boolean): TelegramWebAppMainButton;
+  hideProgress(): TelegramWebAppMainButton;
 }
 
 interface TelegramWebApp {

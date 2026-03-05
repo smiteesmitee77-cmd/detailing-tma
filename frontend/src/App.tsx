@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Service = {
   id: string;
@@ -20,8 +20,7 @@ type Booking = {
   status: "pending" | "confirmed" | "done" | "cancelled";
 };
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE || "http://localhost:4000";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 
 function App() {
   const [services, setServices] = useState<Service[]>([]);
@@ -38,11 +37,17 @@ function App() {
   const [phone, setPhone] = useState<string>("");
   const [comment, setComment] = useState<string>("");
 
-  useEffect(() => {
-    window.Telegram?.WebApp?.ready();
-    window.Telegram?.WebApp?.expand();
-  }, []);
+  const twa = window.Telegram?.WebApp;
+  const isInTelegram = !!(twa?.initData);
+  const isFormValid = !!serviceId && !!date && !!time && !!carModel && !!phone;
 
+  // Инициализация WebApp
+  useEffect(() => {
+    twa?.ready();
+    twa?.expand();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Загрузка данных
   useEffect(() => {
     const load = async () => {
       try {
@@ -52,21 +57,15 @@ function App() {
           fetch(`${API_BASE}/api/bookings`),
         ]);
 
-        if (!servicesRes.ok) {
-          throw new Error("Ошибка загрузки услуг");
-        }
-        if (!bookingsRes.ok) {
-          throw new Error("Ошибка загрузки броней");
-        }
+        if (!servicesRes.ok) throw new Error("Ошибка загрузки услуг");
+        if (!bookingsRes.ok) throw new Error("Ошибка загрузки броней");
 
         const servicesData: Service[] = await servicesRes.json();
         const bookingsData: Booking[] = await bookingsRes.json();
         setServices(servicesData);
         setBookings(bookingsData);
 
-        if (servicesData.length > 0) {
-          setServiceId(servicesData[0].id);
-        }
+        if (servicesData.length > 0) setServiceId(servicesData[0].id);
       } catch (e) {
         console.error(e);
         setError("Не удалось загрузить данные. Проверь, запущен ли backend.");
@@ -74,23 +73,22 @@ function App() {
         setLoading(false);
       }
     };
-
     load();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
+  // Логика отправки формы — вынесена в useCallback, чтобы MainButton мог её вызвать
+  const submitBooking = useCallback(async () => {
     if (!serviceId || !date || !time || !carModel || !phone) {
       setError("Заполни все обязательные поля.");
       return;
     }
 
+    setError(null);
+    setSuccess(null);
+    setSubmitting(true);
+
     try {
-      setSubmitting(true);
-      const initData = window.Telegram?.WebApp?.initData ?? "";
+      const initData = twa?.initData ?? "";
       const res = await fetch(`${API_BASE}/api/bookings`, {
         method: "POST",
         headers: {
@@ -120,20 +118,51 @@ function App() {
       setCarModel("");
       setPhone("");
       setComment("");
-    } catch (e: any) {
-      console.error(e);
-      setError(e.message || "Не удалось отправить заявку.");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Не удалось отправить заявку.";
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
+  }, [serviceId, date, time, carModel, phone, comment, twa]);
+
+  // HTML-форма: просто делегирует submitBooking
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitBooking();
   };
+
+  // Управление видимостью и состоянием MainButton
+  useEffect(() => {
+    if (!twa) return;
+    const mb = twa.MainButton;
+    mb.setText("Записаться");
+
+    if (submitting) {
+      mb.disable().showProgress(false);
+    } else if (isFormValid) {
+      mb.hideProgress().enable().show();
+    } else {
+      mb.hideProgress().hide();
+    }
+  }, [twa, isFormValid, submitting]);
+
+  // Привязка обработчика к MainButton (обновляется при смене submitBooking)
+  useEffect(() => {
+    if (!twa) return;
+    twa.MainButton.onClick(submitBooking);
+    return () => {
+      twa.MainButton.offClick(submitBooking);
+    };
+  }, [twa, submitBooking]);
 
   const today = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="app-root">
       <div className="background-glow" />
-      <main className="app-container">
+      {/* Доп. padding снизу когда MainButton занимает место */}
+      <main className="app-container" style={isInTelegram ? { paddingBottom: "80px" } : undefined}>
         <header className="app-header">
           <h1>CARBASE</h1>
           <p>Запись на оклейку, мойку и замену шин</p>
@@ -215,13 +244,16 @@ function App() {
             {error && <div className="alert alert-error">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}
 
-            <button
-              type="submit"
-              className="primary-button"
-              disabled={submitting}
-            >
-              {submitting ? "Отправляем..." : "Записаться"}
-            </button>
+            {/* В Telegram кнопка скрыта — используется нативный MainButton */}
+            {!isInTelegram && (
+              <button
+                type="submit"
+                className="primary-button"
+                disabled={submitting || !isFormValid}
+              >
+                {submitting ? "Отправляем..." : "Записаться"}
+              </button>
+            )}
           </form>
         </section>
 
@@ -249,9 +281,7 @@ function App() {
                       </span>
                     </div>
                     <div className="booking-meta">
-                      <span>
-                        {b.date} в {b.time}
-                      </span>
+                      <span>{b.date} в {b.time}</span>
                       <span>{b.carModel}</span>
                     </div>
                   </div>
@@ -266,11 +296,9 @@ function App() {
             </ul>
           )}
         </section>
-
       </main>
     </div>
   );
 }
 
 export default App;
-
