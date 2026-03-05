@@ -39,6 +39,11 @@ function App() {
   const [comment, setComment] = useState<string>("");
 
   useEffect(() => {
+    window.Telegram?.WebApp?.ready();
+    window.Telegram?.WebApp?.expand();
+  }, []);
+
+  useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
@@ -85,10 +90,12 @@ function App() {
 
     try {
       setSubmitting(true);
+      const initData = window.Telegram?.WebApp?.initData ?? "";
       const res = await fetch(`${API_BASE}/api/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(initData ? { "X-Telegram-Init-Data": initData } : {}),
         },
         body: JSON.stringify({
           serviceId,

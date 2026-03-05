@@ -7,20 +7,28 @@ const db = new Database(DB_PATH);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS bookings (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    serviceId   TEXT    NOT NULL,
-    serviceName TEXT    NOT NULL,
-    date        TEXT    NOT NULL,
-    time        TEXT    NOT NULL,
-    carModel    TEXT    NOT NULL,
-    phone       TEXT    NOT NULL,
-    comment     TEXT,
-    createdAt   TEXT    NOT NULL,
-    status      TEXT    NOT NULL DEFAULT 'pending',
-    msgChatId   TEXT,
-    msgId       INTEGER
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    serviceId      TEXT    NOT NULL,
+    serviceName    TEXT    NOT NULL,
+    date           TEXT    NOT NULL,
+    time           TEXT    NOT NULL,
+    carModel       TEXT    NOT NULL,
+    phone          TEXT    NOT NULL,
+    comment        TEXT,
+    createdAt      TEXT    NOT NULL,
+    status         TEXT    NOT NULL DEFAULT 'pending',
+    msgChatId      TEXT,
+    msgId          INTEGER,
+    telegramUserId TEXT
   )
 `);
+
+// Миграция для существующих БД без колонки telegramUserId
+try {
+  db.exec("ALTER TABLE bookings ADD COLUMN telegramUserId TEXT");
+} catch {
+  // колонка уже существует — пропускаем
+}
 
 export type BookingStatus = "pending" | "confirmed" | "done" | "cancelled";
 
@@ -37,15 +45,16 @@ export type Booking = {
   status: BookingStatus;
   msgChatId?: string;
   msgId?: number;
+  telegramUserId?: string;
 };
 
 export const createBooking = (data: Omit<Booking, "id" | "createdAt" | "status" | "msgChatId" | "msgId">): Booking => {
   const createdAt = new Date().toISOString();
   const stmt = db.prepare(`
-    INSERT INTO bookings (serviceId, serviceName, date, time, carModel, phone, comment, createdAt, status)
-    VALUES (@serviceId, @serviceName, @date, @time, @carModel, @phone, @comment, @createdAt, 'pending')
+    INSERT INTO bookings (serviceId, serviceName, date, time, carModel, phone, comment, createdAt, status, telegramUserId)
+    VALUES (@serviceId, @serviceName, @date, @time, @carModel, @phone, @comment, @createdAt, 'pending', @telegramUserId)
   `);
-  const result = stmt.run({ ...data, createdAt });
+  const result = stmt.run({ ...data, createdAt, telegramUserId: data.telegramUserId ?? null });
   return getBookingById(result.lastInsertRowid as number)!;
 };
 

@@ -11,6 +11,7 @@ const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "http://localhost:5173";
 app.use(
   cors({
     origin: ALLOWED_ORIGIN,
+    allowedHeaders: ["Content-Type", "X-Telegram-Init-Data"],
   })
 );
 app.use(express.json());
@@ -43,6 +44,22 @@ const services: Service[] = [
   },
 ];
 
+/**
+ * Извлекает Telegram user.id из строки initData (без проверки подписи).
+ * Полная валидация HMAC — в отдельном middleware.
+ */
+function extractUserIdFromInitData(initData: string): string | undefined {
+  try {
+    const params = new URLSearchParams(initData);
+    const userStr = params.get("user");
+    if (!userStr) return undefined;
+    const user = JSON.parse(userStr) as { id?: number };
+    return user.id != null ? String(user.id) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
@@ -67,6 +84,11 @@ app.post("/api/bookings", async (req, res) => {
     return res.status(400).json({ error: "Выбранная услуга не найдена." });
   }
 
+  const initData = req.headers["x-telegram-init-data"];
+  const telegramUserId = typeof initData === "string"
+    ? extractUserIdFromInitData(initData)
+    : undefined;
+
   const booking = createBooking({
     serviceId,
     serviceName: service.name,
@@ -75,6 +97,7 @@ app.post("/api/bookings", async (req, res) => {
     carModel,
     phone,
     comment: comment || undefined,
+    telegramUserId,
   });
 
   notifyAdmin(booking).catch((e) => console.error("Ошибка уведомления бота:", e));
