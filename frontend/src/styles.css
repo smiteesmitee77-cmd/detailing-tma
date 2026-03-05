@@ -1,23 +1,29 @@
 :root {
-  /*
-   * Все цвета берутся из Telegram WebApp theme vars.
-   * Фолбэки — тёмная тема, которая была изначально.
-   */
-  --bg:          var(--tg-theme-bg-color, #000);
-  --bg-card:     var(--tg-theme-secondary-bg-color, #0f0f0f);
-  --accent:      var(--tg-theme-button-color, #25c2a0);
-  --accent-text: var(--tg-theme-button-text-color, #000);
-  --text:        var(--tg-theme-text-color, #f0f0f0);
-  --text-soft:   var(--tg-theme-hint-color, #666);
-  --text-muted:  var(--tg-theme-hint-color, #444);
-  --link:        var(--tg-theme-link-color, #25c2a0);
+  --bg:          var(--tg-theme-bg-color, #0a0a0f);
+  --bg-card:     var(--tg-theme-secondary-bg-color, #111118);
+  --accent:      var(--tg-theme-button-color, #6e9fff);
+  --accent-text: var(--tg-theme-button-text-color, #fff);
+  --text:        var(--tg-theme-text-color, #f2f2f7);
+  --text-soft:   var(--tg-theme-hint-color, #8e8ea0);
+  --text-muted:  #4a4a5a;
+  --link:        var(--tg-theme-link-color, #6e9fff);
 
-  /* Divider автоматически светлеет/темнеет вместе с текстом */
-  --divider: color-mix(in srgb, var(--text) 8%, transparent);
+  --glass-bg:      rgba(255, 255, 255, 0.055);
+  --glass-border:  rgba(255, 255, 255, 0.1);
+  --glass-shadow:  0 8px 40px rgba(0, 0, 0, 0.55);
+  --glass-inner:   inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  --radius-xl:  24px;
+  --radius-lg:  18px;
+  --radius-md:  13px;
+  --radius-sm:  10px;
 
   --error:   #ff453a;
   --success: #32d74b;
-  --accent-dim: color-mix(in srgb, var(--accent) 12%, transparent);
+  --warn:    #ffd60a;
+
+  --accent-glow: rgba(110, 159, 255, 0.22);
+  --accent-dim:  rgba(110, 159, 255, 0.1);
 }
 
 *,
@@ -34,88 +40,135 @@ body {
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
+/* ─── Background ─── */
 .app-root {
   min-height: 100vh;
   display: flex;
   align-items: stretch;
   justify-content: center;
-  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ambient glow blobs */
+.app-root::before,
+.app-root::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-root::before {
+  width: 520px;
+  height: 520px;
+  top: -180px;
+  left: -160px;
+  background: radial-gradient(circle, rgba(110, 159, 255, 0.13) 0%, transparent 70%);
+}
+
+.app-root::after {
+  width: 420px;
+  height: 420px;
+  bottom: -100px;
+  right: -120px;
+  background: radial-gradient(circle, rgba(180, 100, 255, 0.1) 0%, transparent 70%);
 }
 
 .background-glow {
   display: none;
 }
 
+/* ─── Layout ─── */
 .app-container {
   width: 100%;
-  max-width: 640px;
+  max-width: 480px;
   margin: auto;
-  background: var(--bg);
-  border-radius: 0;
-  border: none;
-  box-shadow: none;
-  padding: 0 0 40px;
+  padding: 0 16px 48px;
+  position: relative;
+  z-index: 1;
 }
 
+/* ─── Header ─── */
 .app-header {
-  padding: 36px 24px 28px;
-  border-bottom: 1px solid var(--divider);
-  margin-bottom: 0;
+  padding: 48px 8px 32px;
   text-align: center;
 }
 
 .app-header h1 {
-  margin: 0 0 6px;
-  font-size: 2rem;
-  letter-spacing: 0.22em;
+  margin: 0 0 8px;
+  font-size: 2.1rem;
+  letter-spacing: 0.3em;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--text);
+  background: linear-gradient(135deg, #ffffff 30%, #a0b8ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .app-header p {
   margin: 0;
   color: var(--text-soft);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
+/* ─── Glass card ─── */
 .card {
-  border-radius: 0;
-  border: none;
-  border-bottom: 1px solid var(--divider);
-  background: var(--bg-card);
-  box-shadow: none;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
   padding: 24px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  position: relative;
 }
 
-.card + .card {
-  margin-top: 0;
+/* subtle sheen line at top */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 45%
+  );
+  pointer-events: none;
 }
 
 .card-main h2,
 .card-secondary h2 {
-  margin: 0 0 18px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  margin: 0 0 20px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-soft);
 }
 
+/* ─── Form ─── */
 .booking-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .field-inline {
@@ -125,29 +178,38 @@ body {
 
 .field-inline > div {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
 label {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.15em;
   color: var(--text-soft);
+  padding-left: 2px;
 }
 
+/* ─── Inputs ─── */
 input,
 select,
 textarea {
-  border-radius: 0;
-  border: none;
-  border-bottom: 1px solid var(--divider);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-md);
   color: var(--text);
-  padding: 8px 0;
+  padding: 12px 14px;
   font-size: 0.95rem;
   outline: none;
-  transition: border-color 0.15s ease;
   width: 100%;
   font-family: inherit;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 input::placeholder,
@@ -158,116 +220,144 @@ textarea::placeholder {
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--accent);
-  box-shadow: none;
+  border-color: rgba(110, 159, 255, 0.55);
+  background: rgba(110, 159, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(110, 159, 255, 0.12);
 }
 
 select {
   cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8ea0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* iOS-style dark select options */
+select option {
+  background: #1c1c28;
+  color: var(--text);
 }
 
 textarea {
   resize: none;
-  min-height: 72px;
+  min-height: 84px;
+  line-height: 1.5;
 }
 
+/* ─── Field hint ─── */
 .field-hint {
   margin: 0;
   font-size: 0.72rem;
   color: var(--text-soft);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  padding-left: 2px;
+  line-height: 1.5;
 }
 
 .hint-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   color: var(--text-muted);
   font-size: 0.68rem;
 }
 
+/* ─── Button ─── */
 .primary-button {
-  margin-top: 8px;
-  border-radius: 0;
-  border: 1px solid var(--accent);
-  padding: 13px 18px;
-  font-size: 0.78rem;
+  margin-top: 6px;
+  border-radius: var(--radius-lg);
+  border: none;
+  padding: 15px 20px;
+  font-size: 0.92rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  background: transparent;
-  color: var(--accent);
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, #5b8fff 0%, #8f5fff 100%);
+  color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
+  box-shadow: 0 4px 24px rgba(110, 159, 255, 0.35);
   transition:
-    background 0.15s ease,
-    color 0.15s ease;
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .primary-button:hover {
-  background: var(--accent);
-  color: var(--accent-text);
+  opacity: 0.9;
+  box-shadow: 0 6px 32px rgba(110, 159, 255, 0.48);
 }
 
 .primary-button:active {
-  background: var(--accent);
-  color: var(--accent-text);
+  transform: scale(0.97);
   opacity: 0.85;
+  box-shadow: 0 2px 12px rgba(110, 159, 255, 0.25);
 }
 
 .primary-button:disabled {
-  opacity: 0.35;
+  opacity: 0.32;
   cursor: default;
+  box-shadow: none;
+  transform: none;
 }
 
+/* ─── Alerts ─── */
 .alert {
-  border-radius: 0;
-  padding: 10px 12px;
-  font-size: 0.78rem;
-  border: none;
-  border-left: 2px solid;
+  border-radius: var(--radius-md);
+  padding: 12px 15px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  border: 1px solid;
 }
 
 .alert-error {
-  background: rgba(255, 69, 58, 0.06);
-  border-color: var(--error);
-  color: var(--error);
+  background: rgba(255, 69, 58, 0.09);
+  border-color: rgba(255, 69, 58, 0.3);
+  color: #ff6b6b;
 }
 
 .alert-success {
-  background: rgba(50, 215, 75, 0.06);
-  border-color: var(--success);
-  color: var(--success);
+  background: rgba(50, 215, 75, 0.09);
+  border-color: rgba(50, 215, 75, 0.3);
+  color: #4ade80;
 }
 
+/* ─── Bookings section ─── */
 .card-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 1px 7px;
-  border-radius: 0;
-  background: transparent;
-  border: 1px solid var(--text-muted);
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(110, 159, 255, 0.2);
   font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  color: var(--text-soft);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--accent);
 }
 
 .muted {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-soft);
+  text-align: center;
+  padding: 12px 0;
 }
 
+/* ─── Booking list ─── */
 .booking-list {
   list-style: none;
   padding: 0;
@@ -275,29 +365,39 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-height: 260px;
-  overflow: auto;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.booking-list::-webkit-scrollbar {
+  display: none;
 }
 
 .booking-item {
-  border-radius: 0;
-  border: none;
-  border-bottom: 1px solid var(--divider);
-  background: transparent;
-  padding: 12px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 13px 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  margin-bottom: 8px;
+  transition: background 0.15s ease;
 }
 
 .booking-item:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.booking-item:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .booking-main {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .booking-title {
@@ -308,16 +408,17 @@ textarea {
 }
 
 .service-name {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  color: var(--text);
 }
 
 .booking-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.74rem;
+  gap: 10px;
+  font-size: 0.75rem;
   color: var(--text-soft);
 }
 
@@ -325,8 +426,8 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  font-size: 0.74rem;
-  color: var(--text-soft);
+  font-size: 0.73rem;
+  color: var(--text-muted);
 }
 
 .phone {
@@ -334,65 +435,93 @@ textarea {
 }
 
 .comment {
-  opacity: 0.7;
+  opacity: 0.65;
+  font-style: italic;
 }
 
+/* ─── Status pills ─── */
 .status {
-  padding: 2px 7px;
-  border-radius: 0;
-  font-size: 0.62rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.6rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   border: 1px solid;
+  white-space: nowrap;
 }
 
 .status-pending {
-  background: transparent;
-  border-color: rgba(251, 191, 36, 0.4);
-  color: #facc15;
+  background: rgba(255, 214, 10, 0.1);
+  border-color: rgba(255, 214, 10, 0.3);
+  color: var(--warn);
 }
 
 .status-confirmed {
-  background: transparent;
-  border-color: rgba(50, 215, 75, 0.4);
+  background: rgba(50, 215, 75, 0.1);
+  border-color: rgba(50, 215, 75, 0.3);
   color: #4ade80;
 }
 
 .status-done {
-  background: transparent;
-  border-color: rgba(37, 194, 160, 0.4);
+  background: rgba(110, 159, 255, 0.1);
+  border-color: rgba(110, 159, 255, 0.3);
   color: var(--accent);
 }
 
 .status-cancelled {
-  background: transparent;
-  border-color: rgba(255, 69, 58, 0.4);
+  background: rgba(255, 69, 58, 0.1);
+  border-color: rgba(255, 69, 58, 0.3);
   color: #ff6b6b;
 }
 
-.app-footer {
-  margin-top: 24px;
-  padding: 0 24px;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-align: center;
+/* ─── Loader skeleton shimmer ─── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
 }
 
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-item {
+  height: 62px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* ─── Responsive ─── */
 @media (min-width: 800px) {
   .app-container {
-    padding: 0 0 48px;
+    padding: 0 0 56px;
   }
 }
 
 @media (max-width: 599px) {
   .app-container {
-    border-radius: 0;
-    padding: 0 0 32px;
+    padding: 0 12px 40px;
   }
 
   .field-inline {
     flex-direction: column;
+  }
+
+  .app-header {
+    padding: 36px 8px 24px;
+  }
+
+  .app-header h1 {
+    font-size: 1.8rem;
+    letter-spacing: 0.25em;
   }
 }

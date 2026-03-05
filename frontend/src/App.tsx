@@ -190,13 +190,20 @@ function App() {
     (maxStartMin % 60).toString().padStart(2, "0"),
   ].join(":");
 
+  const statusLabel: Record<Booking["status"], string> = {
+    pending:   "Новая",
+    confirmed: "Подтверждена",
+    done:      "Выполнена",
+    cancelled: "Отменена",
+  };
+
   return (
     <div className="app-root">
       <div className="background-glow" />
       <main className="app-container" style={isInTelegram ? { paddingBottom: "80px" } : undefined}>
         <header className="app-header">
           <h1>CARBASE</h1>
-          <p>Запись на оклейку, мойку и замену шин</p>
+          <p>Оклейка · Мойка · Шиномонтаж</p>
         </header>
 
         <section className="card card-main">
@@ -210,16 +217,19 @@ function App() {
                 onChange={(e) => setServiceId(e.target.value)}
                 disabled={loading || services.length === 0}
               >
-                {services.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name} — {formatPrice(s.price)}
-                  </option>
-                ))}
+                {loading
+                  ? <option>Загружаем услуги…</option>
+                  : services.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} — {formatPrice(s.price)}
+                    </option>
+                  ))
+                }
               </select>
               {selectedService && (
                 <p className="field-hint">
                   {selectedService.description}&nbsp;
-                  <span className="hint-duration">⏱ {selectedService.durationMinutes} мин</span>
+                  <span className="hint-duration">· {selectedService.durationMinutes} мин</span>
                 </p>
               )}
             </div>
@@ -231,6 +241,7 @@ function App() {
                   type="date"
                   value={date}
                   min={today}
+                  placeholder="дд.мм.гггг"
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
@@ -241,6 +252,7 @@ function App() {
                   value={time}
                   min={minTime}
                   max={maxTime}
+                  placeholder="09:00"
                   onChange={(e) => setTime(e.target.value)}
                 />
               </div>
@@ -250,17 +262,17 @@ function App() {
               <label>Имя</label>
               <input
                 type="text"
-                placeholder="Как к вам обращаться"
+                placeholder="Как к вам обращаться?"
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
               />
             </div>
 
             <div className="field">
-              <label>Авто</label>
+              <label>Автомобиль</label>
               <input
                 type="text"
-                placeholder="Марка и модель"
+                placeholder="Например: BMW 5-Series, белый"
                 value={carModel}
                 onChange={(e) => setCarModel(e.target.value)}
               />
@@ -270,16 +282,16 @@ function App() {
               <label>Телефон</label>
               <input
                 type="tel"
-                placeholder="+79001234567"
+                placeholder="+7 900 123-45-67"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
             </div>
 
             <div className="field">
-              <label>Комментарий (опционально)</label>
+              <label>Комментарий</label>
               <textarea
-                placeholder="Особые пожелания, цвет плёнки и т.п."
+                placeholder="Особые пожелания, цвет плёнки, пожелания по времени…"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
@@ -295,7 +307,7 @@ function App() {
                 className="primary-button"
                 disabled={submitting || !isFormValid}
               >
-                {submitting ? "Отправляем..." : "Записаться"}
+                {submitting ? "Отправляем…" : "Записаться"}
               </button>
             )}
           </form>
@@ -307,9 +319,11 @@ function App() {
             <span className="badge">{bookings.length}</span>
           </div>
           {loading ? (
-            <p className="muted">Загружаем данные...</p>
+            <div className="skeleton-list">
+              {[1, 2].map((n) => <div key={n} className="skeleton-item" />)}
+            </div>
           ) : bookings.length === 0 ? (
-            <p className="muted">Пока нет ни одной заявки.</p>
+            <p className="muted">Здесь появятся ваши записи</p>
           ) : (
             <ul className="booking-list">
               {bookings.map((b) => (
@@ -318,14 +332,11 @@ function App() {
                     <div className="booking-title">
                       <span className="service-name">{b.serviceName}</span>
                       <span className={`status status-${b.status}`}>
-                        {b.status === "pending" && "Новая"}
-                        {b.status === "confirmed" && "Подтверждена"}
-                        {b.status === "done" && "Выполнена"}
-                        {b.status === "cancelled" && "Отменена"}
+                        {statusLabel[b.status]}
                       </span>
                     </div>
                     <div className="booking-meta">
-                      <span>{b.date} в {b.time}</span>
+                      <span>{b.date} · {b.time}</span>
                       <span>{b.carModel}</span>
                     </div>
                   </div>
