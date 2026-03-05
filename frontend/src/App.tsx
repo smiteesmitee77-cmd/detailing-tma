@@ -260,9 +260,6 @@ function App() {
           )}
         </section>
 
-        <footer className="app-footer">
-          <span>Готово для встраивания в Telegram Mini App.</span>
-        </footer>
       </main>
     </div>
   );
