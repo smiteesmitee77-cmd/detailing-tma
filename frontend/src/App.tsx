@@ -304,8 +304,8 @@ function App() {
             {!isInTelegram && (
               <button
                 type="submit"
-                className="primary-button"
-                disabled={submitting || !isFormValid}
+                className={`primary-button${!isFormValid ? " primary-button--dim" : ""}${submitting ? " primary-button--loading" : ""}`}
+                disabled={submitting}
               >
                 {submitting ? "Отправляем…" : "Записаться"}
               </button>
