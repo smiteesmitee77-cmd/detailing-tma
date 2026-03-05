@@ -181,6 +181,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 7px;
+  position: relative;
 }
 
 label {
@@ -201,6 +202,8 @@ textarea {
   color: var(--text);
   padding: 12px 14px;
   font-size: 0.95rem;
+  line-height: 1.4;
+  min-height: 46px;
   outline: none;
   width: 100%;
   font-family: inherit;
@@ -237,6 +240,27 @@ select {
 select option {
   background: #1c1c28;
   color: var(--text);
+}
+
+/* Date & time: нормализуем высоту и убираем браузерные декорации */
+input[type="date"],
+input[type="time"] {
+  padding: 0 14px;
+  height: 46px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* Пока значение не выбрано — текст как у placeholder */
+input[type="date"]:not(:valid),
+input[type="time"]:not(:valid) {
+  color: var(--text-muted);
 }
 
 textarea {
@@ -299,10 +323,11 @@ textarea {
 }
 
 .primary-button:disabled {
-  opacity: 0.32;
+  opacity: 0.45;
   cursor: default;
   box-shadow: none;
   transform: none;
+  background: linear-gradient(135deg, #3a5ab0 0%, #5a3ab0 100%);
 }
 
 /* ─── Alerts ─── */
