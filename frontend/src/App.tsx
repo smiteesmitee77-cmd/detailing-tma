@@ -195,22 +195,28 @@ function App() {
     <div className="app-root">
       <div className="bg-shapes" aria-hidden="true">
         <svg className="bg-poly" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="0,0 195,120 0,240"        fill="rgba(60,80,180,0.18)" />
-          <polygon points="195,120 390,0 390,200"    fill="rgba(90,50,160,0.14)" />
-          <polygon points="0,0 390,0 195,120"        fill="rgba(40,60,140,0.20)" />
-          <polygon points="195,120 390,200 280,320"  fill="rgba(100,60,200,0.12)" />
-          <polygon points="0,240 195,120 280,320"    fill="rgba(50,90,200,0.15)" />
-          <polygon points="0,240 280,320 0,480"      fill="rgba(30,50,120,0.18)" />
-          <polygon points="280,320 390,200 390,420"  fill="rgba(80,40,160,0.13)" />
-          <polygon points="280,320 390,420 180,500"  fill="rgba(60,70,180,0.16)" />
-          <polygon points="0,480 280,320 180,500"    fill="rgba(40,80,160,0.12)" />
-          <polygon points="0,480 180,500 0,660"      fill="rgba(20,40,100,0.20)" />
-          <polygon points="180,500 390,420 390,620"  fill="rgba(70,50,150,0.14)" />
-          <polygon points="180,500 390,620 220,700"  fill="rgba(50,60,170,0.13)" />
-          <polygon points="0,660 180,500 220,700"    fill="rgba(30,50,130,0.17)" />
-          <polygon points="0,660 220,700 0,844"      fill="rgba(20,30,90,0.22)" />
-          <polygon points="220,700 390,620 390,844"  fill="rgba(60,40,140,0.16)" />
-          <polygon points="0,844 220,700 390,844"    fill="rgba(30,40,110,0.18)" />
+          {/* верхняя зона */}
+          <polygon points="0,0 200,0 120,160"         fill="rgba(40,55,120,0.85)" />
+          <polygon points="200,0 390,0 280,140"        fill="rgba(25,35,90,0.90)" />
+          <polygon points="120,160 280,140 390,0 200,0 0,0" fill="rgba(55,70,150,0.70)" />
+          <polygon points="0,0 120,160 0,260"          fill="rgba(30,42,100,0.88)" />
+          <polygon points="280,140 390,0 390,220"      fill="rgba(45,30,110,0.82)" />
+          {/* средняя зона */}
+          <polygon points="0,260 120,160 220,300"      fill="rgba(50,65,140,0.80)" />
+          <polygon points="120,160 280,140 220,300"    fill="rgba(35,50,125,0.85)" />
+          <polygon points="280,140 390,220 330,360"    fill="rgba(55,40,130,0.78)" />
+          <polygon points="220,300 330,360 100,420"    fill="rgba(40,58,135,0.82)" />
+          <polygon points="0,260 220,300 100,420"      fill="rgba(28,40,105,0.88)" />
+          <polygon points="330,360 390,220 390,460"    fill="rgba(50,35,120,0.75)" />
+          {/* нижняя зона */}
+          <polygon points="0,420 100,420 60,580"       fill="rgba(32,45,110,0.88)" />
+          <polygon points="100,420 330,360 250,520"    fill="rgba(45,60,140,0.80)" />
+          <polygon points="330,360 390,460 390,600 250,520" fill="rgba(38,28,100,0.82)" />
+          <polygon points="0,580 60,580 0,760"         fill="rgba(22,32,88,0.90)" />
+          <polygon points="60,580 250,520 200,700"     fill="rgba(42,55,130,0.78)" />
+          <polygon points="250,520 390,600 390,760 200,700" fill="rgba(48,35,115,0.80)" />
+          <polygon points="0,760 200,700 0,844"        fill="rgba(20,28,80,0.92)" />
+          <polygon points="200,700 390,760 390,844 0,844" fill="rgba(35,25,95,0.85)" />
         </svg>
         <div className="bg-blur-overlay" />
         <div className="bg-shape bg-shape--circle1" />
