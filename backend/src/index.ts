@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { createBooking, getAllBookings, updateBookingStatus, deleteOldBookings } from "./db";
+import { createBooking, getAllBookings, getBookingsByUserId, updateBookingStatus, deleteOldBookings } from "./db";
 import { bot, notifyAdmin } from "./bot";
 import { validateTelegramInitData } from "./validateInitData";
 
@@ -16,6 +16,31 @@ app.use(
   })
 );
 app.use(express.json());
+
+type ResolveResult =
+  | { ok: true; userId: string | undefined }
+  | { ok: false; error: string };
+
+/**
+ * Валидирует заголовок X-Telegram-Init-Data и возвращает userId.
+ * Если BOT_TOKEN не задан (dev-режим) — пропускает проверку.
+ */
+function resolveUserId(rawHeader: string | string[] | undefined): ResolveResult {
+  const botToken = process.env.BOT_TOKEN;
+  if (!botToken) return { ok: true, userId: undefined };
+
+  if (typeof rawHeader !== "string" || !rawHeader) {
+    return { ok: false, error: "Требуется авторизация через Telegram." };
+  }
+
+  const result = validateTelegramInitData(rawHeader, botToken);
+  if (!result.valid) {
+    console.warn("[auth] Невалидный initData:", result.reason);
+    return { ok: false, error: "Данные Telegram недействительны или устарели." };
+  }
+
+  return { ok: true, userId: result.user ? String(result.user.id) : undefined };
+}
 
 type Service = {
   id: string;
@@ -53,7 +78,15 @@ app.get("/api/services", (_req, res) => {
   res.json(services);
 });
 
-app.get("/api/bookings", (_req, res) => {
+app.get("/api/bookings", (req, res) => {
+  const auth = resolveUserId(req.headers["x-telegram-init-data"]);
+  if (!auth.ok) return res.status(401).json({ error: auth.error });
+
+  if (auth.userId) {
+    return res.json(getBookingsByUserId(auth.userId));
+  }
+
+  // Dev-режим (BOT_TOKEN не задан): возвращаем все записи
   res.json(getAllBookings());
 });
 
@@ -70,23 +103,9 @@ app.post("/api/bookings", async (req, res) => {
   }
 
   const rawInitData = req.headers["x-telegram-init-data"];
-  const botToken = process.env.BOT_TOKEN;
-
-  let telegramUserId: string | undefined;
-
-  if (botToken) {
-    // Production: initData обязательна и должна быть валидной
-    if (typeof rawInitData !== "string" || !rawInitData) {
-      return res.status(401).json({ error: "Требуется авторизация через Telegram." });
-    }
-    const result = validateTelegramInitData(rawInitData, botToken);
-    if (!result.valid) {
-      console.warn("[auth] Невалидный initData:", result.reason);
-      return res.status(401).json({ error: "Данные Telegram недействительны или устарели." });
-    }
-    telegramUserId = result.user ? String(result.user.id) : undefined;
-  }
-  // Dev-режим (BOT_TOKEN не задан): пропускаем валидацию
+  const auth = resolveUserId(rawInitData);
+  if (!auth.ok) return res.status(401).json({ error: auth.error });
+  const telegramUserId = auth.userId;
 
   const booking = createBooking({
     serviceId,

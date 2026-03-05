@@ -52,9 +52,12 @@ function App() {
     const load = async () => {
       try {
         setLoading(true);
+        const initData = window.Telegram?.WebApp?.initData ?? "";
+        const authHeader = initData ? { "X-Telegram-Init-Data": initData } : {};
+
         const [servicesRes, bookingsRes] = await Promise.all([
           fetch(`${API_BASE}/api/services`),
-          fetch(`${API_BASE}/api/bookings`),
+          fetch(`${API_BASE}/api/bookings`, { headers: authHeader }),
         ]);
 
         if (!servicesRes.ok) throw new Error("Ошибка загрузки услуг");

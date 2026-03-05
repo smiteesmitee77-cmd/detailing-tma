@@ -66,6 +66,12 @@ export const getAllBookings = (): Booking[] => {
   return db.prepare("SELECT * FROM bookings ORDER BY createdAt DESC").all() as Booking[];
 };
 
+export const getBookingsByUserId = (telegramUserId: string): Booking[] => {
+  return db
+    .prepare("SELECT * FROM bookings WHERE telegramUserId = ? ORDER BY createdAt DESC")
+    .all(telegramUserId) as Booking[];
+};
+
 export const updateBookingStatus = (id: number, status: BookingStatus): Booking | undefined => {
   db.prepare("UPDATE bookings SET status = ? WHERE id = ?").run(status, id);
   return getBookingById(id);
