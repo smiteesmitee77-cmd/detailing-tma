@@ -55,6 +55,8 @@ function App() {
   useEffect(() => {
     twa?.ready();
     twa?.expand();
+    twa?.setHeaderColor("#050508");
+    twa?.setBackgroundColor("#050508");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Загрузка данных
