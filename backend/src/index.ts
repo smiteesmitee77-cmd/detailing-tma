@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { createBooking, getAllBookings, updateBookingStatus, deleteOldBookings } from "./db";
 import { bot, notifyAdmin } from "./bot";
+import { validateTelegramInitData } from "./validateInitData";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -44,22 +45,6 @@ const services: Service[] = [
   },
 ];
 
-/**
- * Извлекает Telegram user.id из строки initData (без проверки подписи).
- * Полная валидация HMAC — в отдельном middleware.
- */
-function extractUserIdFromInitData(initData: string): string | undefined {
-  try {
-    const params = new URLSearchParams(initData);
-    const userStr = params.get("user");
-    if (!userStr) return undefined;
-    const user = JSON.parse(userStr) as { id?: number };
-    return user.id != null ? String(user.id) : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
@@ -84,10 +69,24 @@ app.post("/api/bookings", async (req, res) => {
     return res.status(400).json({ error: "Выбранная услуга не найдена." });
   }
 
-  const initData = req.headers["x-telegram-init-data"];
-  const telegramUserId = typeof initData === "string"
-    ? extractUserIdFromInitData(initData)
-    : undefined;
+  const rawInitData = req.headers["x-telegram-init-data"];
+  const botToken = process.env.BOT_TOKEN;
+
+  let telegramUserId: string | undefined;
+
+  if (botToken) {
+    // Production: initData обязательна и должна быть валидной
+    if (typeof rawInitData !== "string" || !rawInitData) {
+      return res.status(401).json({ error: "Требуется авторизация через Telegram." });
+    }
+    const result = validateTelegramInitData(rawInitData, botToken);
+    if (!result.valid) {
+      console.warn("[auth] Невалидный initData:", result.reason);
+      return res.status(401).json({ error: "Данные Telegram недействительны или устарели." });
+    }
+    telegramUserId = result.user ? String(result.user.id) : undefined;
+  }
+  // Dev-режим (BOT_TOKEN не задан): пропускаем валидацию
 
   const booking = createBooking({
     serviceId,
