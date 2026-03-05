@@ -1,27 +1,27 @@
 {
   "name": "detailing-tma-backend",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "bot": "ts-node-dev --respawn --transpile-only src/bot.ts",
-    "build": "echo 'no build step'",
-    "start": "node_modules/.bin/ts-node --transpile-only src/index.ts"
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "dependencies": {
-    "@types/better-sqlite3": "^7.6.13",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^4.17.25",
     "better-sqlite3": "^12.6.2",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
     "express": "^4.19.2",
-    "telegraf": "^4.16.3",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "telegraf": "^4.16.3"
   },
   "devDependencies": {
-    "ts-node-dev": "^2.0.0"
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.25",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
   }
 }
