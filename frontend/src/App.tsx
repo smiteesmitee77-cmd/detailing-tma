@@ -193,7 +193,14 @@ function App() {
 
   return (
     <div className="app-root">
-      <div className="background-glow" />
+      <div className="bg-shapes" aria-hidden="true">
+        <div className="bg-shape bg-shape--circle1" />
+        <div className="bg-shape bg-shape--circle2" />
+        <div className="bg-shape bg-shape--circle3" />
+        <div className="bg-shape bg-shape--rect1" />
+        <div className="bg-shape bg-shape--rect2" />
+        <div className="bg-shape bg-shape--oval1" />
+      </div>
       <main className="app-container" style={isInTelegram ? { paddingBottom: "80px" } : undefined}>
         <header className="app-header">
           <h1>CARBASE</h1>
