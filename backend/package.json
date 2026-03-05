@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "bot": "ts-node-dev --respawn --transpile-only src/bot.ts",
     "build": "echo 'no build step'",
-    "start": "ts-node --transpile-only src/index.ts"
+    "start": "node_modules/.bin/ts-node --transpile-only src/index.ts"
   },
   "dependencies": {
     "@types/better-sqlite3": "^7.6.13",
