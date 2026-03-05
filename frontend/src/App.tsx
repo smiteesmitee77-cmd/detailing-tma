@@ -301,15 +301,13 @@ function App() {
             {error && <div className="alert alert-error">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}
 
-            {!isInTelegram && (
-              <button
-                type="submit"
-                className={`primary-button${!isFormValid ? " primary-button--dim" : ""}${submitting ? " primary-button--loading" : ""}`}
-                disabled={submitting}
-              >
-                {submitting ? "Отправляем…" : "Записаться"}
-              </button>
-            )}
+            <button
+              type="submit"
+              className={`primary-button${!isFormValid ? " primary-button--dim" : ""}${submitting ? " primary-button--loading" : ""}`}
+              disabled={submitting}
+            >
+              {submitting ? "Отправляем…" : "Записаться"}
+            </button>
           </form>
         </section>
 
