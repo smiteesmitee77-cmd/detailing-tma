@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Service = {
   id: string;
@@ -46,6 +46,8 @@ function App() {
   const [carModel, setCarModel] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [comment, setComment] = useState<string>("");
+  const [serviceDropOpen, setServiceDropOpen] = useState(false);
+  const serviceDropRef = useRef<HTMLDivElement>(null);
 
   const twa = window.Telegram?.WebApp;
   const isInTelegram = !!(twa?.initData);
@@ -58,6 +60,17 @@ function App() {
     twa?.setHeaderColor("#050508");
     twa?.setBackgroundColor("#050508");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Закрытие дропдауна по клику вне
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (serviceDropRef.current && !serviceDropRef.current.contains(e.target as Node)) {
+        setServiceDropOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Загрузка данных
   useEffect(() => {
@@ -237,20 +250,40 @@ function App() {
 
             <div className="field">
               <label>Услуга</label>
-              <select
-                value={serviceId}
-                onChange={(e) => setServiceId(e.target.value)}
-                disabled={loading || services.length === 0}
-              >
-                {loading
-                  ? <option>Загружаем услуги…</option>
-                  : services.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name} — {formatPrice(s.price)}
-                    </option>
-                  ))
-                }
-              </select>
+              <div className="custom-select" ref={serviceDropRef}>
+                <button
+                  type="button"
+                  className={`custom-select__trigger${serviceDropOpen ? " custom-select__trigger--open" : ""}`}
+                  onClick={() => !loading && services.length > 0 && setServiceDropOpen(o => !o)}
+                  disabled={loading || services.length === 0}
+                >
+                  <span>
+                    {loading
+                      ? "Загружаем услуги…"
+                      : selectedService
+                        ? `${selectedService.name} — ${formatPrice(selectedService.price)}`
+                        : "Выберите услугу"
+                    }
+                  </span>
+                  <svg className="custom-select__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+                {serviceDropOpen && (
+                  <ul className="custom-select__dropdown">
+                    {services.map((s) => (
+                      <li
+                        key={s.id}
+                        className={`custom-select__option${s.id === serviceId ? " custom-select__option--active" : ""}`}
+                        onClick={() => { setServiceId(s.id); setServiceDropOpen(false); }}
+                      >
+                        <span className="custom-select__option-name">{s.name}</span>
+                        <span className="custom-select__option-price">{formatPrice(s.price)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               {selectedService && (
                 <p className="field-hint">
                   {selectedService.description}&nbsp;
