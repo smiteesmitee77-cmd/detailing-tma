@@ -1,5 +1,8 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import { createBooking, getAllBookings, updateBookingStatus } from "./db";
+import { bot, notifyAdmin } from "./bot";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -18,21 +21,6 @@ type Service = {
   name: string;
   description: string;
   durationMinutes: number;
-};
-
-type BookingStatus = "pending" | "confirmed" | "done" | "cancelled";
-
-type Booking = {
-  id: string;
-  serviceId: string;
-  serviceName: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:MM
-  carModel: string;
-  phone: string;
-  comment?: string;
-  createdAt: string;
-  status: BookingStatus;
 };
 
 const services: Service[] = [
@@ -56,8 +44,6 @@ const services: Service[] = [
   },
 ];
 
-const bookings: Booking[] = [];
-
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
@@ -67,10 +53,10 @@ app.get("/api/services", (_req, res) => {
 });
 
 app.get("/api/bookings", (_req, res) => {
-  res.json(bookings);
+  res.json(getAllBookings());
 });
 
-app.post("/api/bookings", (req, res) => {
+app.post("/api/bookings", async (req, res) => {
   const { serviceId, date, time, carModel, phone, comment } = req.body || {};
 
   if (!serviceId || !date || !time || !carModel || !phone) {
@@ -82,28 +68,48 @@ app.post("/api/bookings", (req, res) => {
     return res.status(400).json({ error: "Выбранная услуга не найдена." });
   }
 
-  const id = String(bookings.length + 1);
-  const createdAt = new Date().toISOString();
-
-  const booking: Booking = {
-    id,
+  const booking = createBooking({
     serviceId,
     serviceName: service.name,
     date,
     time,
     carModel,
     phone,
-    comment,
-    createdAt,
-    status: "pending",
-  };
+    comment: comment || undefined,
+  });
 
-  bookings.push(booking);
+  notifyAdmin(booking).catch((e) => console.error("Ошибка уведомления бота:", e));
 
   res.status(201).json(booking);
+});
+
+app.patch("/api/bookings/:id/status", (req, res) => {
+  const id = Number(req.params.id);
+  const { status } = req.body || {};
+
+  const allowed = ["pending", "confirmed", "done", "cancelled"];
+  if (!status || !allowed.includes(status)) {
+    return res.status(400).json({ error: "Некорректный статус." });
+  }
+
+  const updated = updateBookingStatus(id, status);
+  if (!updated) {
+    return res.status(404).json({ error: "Бронь не найдена." });
+  }
+
+  res.json(updated);
 });
 
 app.listen(PORT, () => {
   console.log(`Backend listening on http://localhost:${PORT}`);
 });
 
+if (process.env.BOT_TOKEN) {
+  bot.launch().then(() => {
+    console.log("Bot started.");
+  });
+  process.once("SIGINT", () => bot.stop("SIGINT"));
+  process.once("SIGTERM", () => bot.stop("SIGTERM"));
+} else {
+  console.warn("BOT_TOKEN не задан — бот не запущен.");
+}

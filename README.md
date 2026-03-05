@@ -49,12 +49,14 @@
 
    - `BOT_TOKEN` — токен бота из `@BotFather`
    - `WEBAPP_URL` — публичный URL фронтенда (когда задеплоишь, например `https://tma.your-domain.com`)
+   - `ADMIN_CHAT_ID` — твой Telegram chat_id, куда бот будет слать уведомления о новых бронях (узнай у `@userinfobot`)
 
    Пример для PowerShell (Windows), перед запуском бота:
 
    ```powershell
    $env:BOT_TOKEN="ТВОЙ_ТОКЕН_ИЗ_BOTFATHER"
    $env:WEBAPP_URL="https://tma.your-domain.com"
+   $env:ADMIN_CHAT_ID="123456789"
    cd backend
    npm run bot
    ```
@@ -93,7 +95,7 @@
 3. Подключить репозиторий к Render и задеплоить `backend`:
    - build: `npm run build`
    - start: `npm run start`
-   - переменные окружения: `ALLOWED_ORIGIN` (URL фронта).
+   - переменные окружения: `ALLOWED_ORIGIN` (URL фронта), `ADMIN_CHAT_ID` (твой Telegram chat_id), `BOT_TOKEN` (токен бота).
 4. Подключить репозиторий к Vercel и задеплоить `frontend`:
    - root: `frontend`
    - build: `npm run build`
