@@ -159,25 +159,8 @@ function App() {
   }, [success, isInTelegram, twa]);
   useEffect(() => {
     if (!twa) return;
-    const mb = twa.MainButton;
-    mb.setText("Записаться");
-
-    if (submitting) {
-      mb.disable().showProgress(false);
-    } else if (isFormValid) {
-      mb.hideProgress().enable().show();
-    } else {
-      mb.hideProgress().hide();
-    }
-  }, [twa, isFormValid, submitting]);
-
-  useEffect(() => {
-    if (!twa) return;
-    twa.MainButton.onClick(submitBooking);
-    return () => {
-      twa.MainButton.offClick(submitBooking);
-    };
-  }, [twa, submitBooking]);
+    twa.MainButton.hide();
+  }, [twa]);
 
   const today = new Date().toISOString().slice(0, 10);
 
