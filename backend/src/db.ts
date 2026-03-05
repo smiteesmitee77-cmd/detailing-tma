@@ -30,6 +30,13 @@ try {
   // колонка уже существует — пропускаем
 }
 
+// Миграция для существующих БД без колонки clientName
+try {
+  db.exec("ALTER TABLE bookings ADD COLUMN clientName TEXT");
+} catch {
+  // колонка уже существует — пропускаем
+}
+
 export type BookingStatus = "pending" | "confirmed" | "done" | "cancelled";
 
 export type Booking = {
@@ -38,6 +45,7 @@ export type Booking = {
   serviceName: string;
   date: string;
   time: string;
+  clientName: string;
   carModel: string;
   phone: string;
   comment?: string;
@@ -51,8 +59,8 @@ export type Booking = {
 export const createBooking = (data: Omit<Booking, "id" | "createdAt" | "status" | "msgChatId" | "msgId">): Booking => {
   const createdAt = new Date().toISOString();
   const stmt = db.prepare(`
-    INSERT INTO bookings (serviceId, serviceName, date, time, carModel, phone, comment, createdAt, status, telegramUserId)
-    VALUES (@serviceId, @serviceName, @date, @time, @carModel, @phone, @comment, @createdAt, 'pending', @telegramUserId)
+    INSERT INTO bookings (serviceId, serviceName, date, time, clientName, carModel, phone, comment, createdAt, status, telegramUserId)
+    VALUES (@serviceId, @serviceName, @date, @time, @clientName, @carModel, @phone, @comment, @createdAt, 'pending', @telegramUserId)
   `);
   const result = stmt.run({ ...data, createdAt, telegramUserId: data.telegramUserId ?? null });
   return getBookingById(result.lastInsertRowid as number)!;

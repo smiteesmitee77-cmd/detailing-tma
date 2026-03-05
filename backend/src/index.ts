@@ -47,6 +47,7 @@ type Service = {
   name: string;
   description: string;
   durationMinutes: number;
+  price: number;
 };
 
 const services: Service[] = [
@@ -55,20 +56,26 @@ const services: Service[] = [
     name: "Оклейка авто",
     description: "Защитная или декоративная оклейка кузова плёнкой.",
     durationMinutes: 240,
+    price: 15000,
   },
   {
     id: "wash",
     name: "Мойка",
     description: "Комплексная мойка кузова и салона.",
     durationMinutes: 60,
+    price: 1500,
   },
   {
     id: "tires",
     name: "Замена шин",
     description: "Сезонная переобувка и балансировка.",
     durationMinutes: 90,
+    price: 2000,
   },
 ];
+
+/** Телефон: +7/8/7 + 10 цифр */
+const PHONE_RE = /^(\+7|7|8)\d{10}$/;
 
 /** Рабочие часы в минутах от начала суток */
 const WORK_START_MIN = 9 * 60;  // 09:00
@@ -141,10 +148,14 @@ app.get("/api/bookings", (req, res) => {
 });
 
 app.post("/api/bookings", async (req, res) => {
-  const { serviceId, date, time, carModel, phone, comment } = req.body || {};
+  const { serviceId, date, time, clientName, carModel, phone, comment } = req.body || {};
 
-  if (!serviceId || !date || !time || !carModel || !phone) {
+  if (!serviceId || !date || !time || !clientName || !carModel || !phone) {
     return res.status(400).json({ error: "Не заполнены обязательные поля." });
+  }
+
+  if (!PHONE_RE.test(String(phone).replace(/\s/g, ""))) {
+    return res.status(400).json({ error: "Некорректный номер телефона. Формат: +79001234567" });
   }
 
   const service = services.find((s) => s.id === serviceId);
@@ -167,6 +178,7 @@ app.post("/api/bookings", async (req, res) => {
     serviceName: service.name,
     date,
     time,
+    clientName,
     carModel,
     phone,
     comment: comment || undefined,

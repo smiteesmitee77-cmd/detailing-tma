@@ -5,6 +5,7 @@ type Service = {
   name: string;
   description: string;
   durationMinutes: number;
+  price: number;
 };
 
 type Booking = {
@@ -13,6 +14,7 @@ type Booking = {
   serviceName: string;
   date: string;
   time: string;
+  clientName: string;
   carModel: string;
   phone: string;
   comment?: string;
@@ -21,6 +23,13 @@ type Booking = {
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
+
+/** Телефон: +7/8/7 + 10 цифр */
+const PHONE_RE = /^(\+7|7|8)\d{10}$/;
+
+function formatPrice(price: number): string {
+  return price.toLocaleString("ru-RU") + " ₽";
+}
 
 function App() {
   const [services, setServices] = useState<Service[]>([]);
@@ -33,13 +42,14 @@ function App() {
   const [serviceId, setServiceId] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [time, setTime] = useState<string>("");
+  const [clientName, setClientName] = useState<string>("");
   const [carModel, setCarModel] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [comment, setComment] = useState<string>("");
 
   const twa = window.Telegram?.WebApp;
   const isInTelegram = !!(twa?.initData);
-  const isFormValid = !!serviceId && !!date && !!time && !!carModel && !!phone;
+  const isFormValid = !!serviceId && !!date && !!time && !!clientName && !!carModel && !!phone;
 
   // Инициализация WebApp
   useEffect(() => {
@@ -79,10 +89,15 @@ function App() {
     load();
   }, []);
 
-  // Логика отправки формы — вынесена в useCallback, чтобы MainButton мог её вызвать
   const submitBooking = useCallback(async () => {
-    if (!serviceId || !date || !time || !carModel || !phone) {
+    if (!serviceId || !date || !time || !clientName || !carModel || !phone) {
       setError("Заполни все обязательные поля.");
+      return;
+    }
+
+    const cleanPhone = phone.replace(/\s/g, "");
+    if (!PHONE_RE.test(cleanPhone)) {
+      setError("Некорректный номер телефона. Формат: +79001234567");
       return;
     }
 
@@ -102,8 +117,9 @@ function App() {
           serviceId,
           date,
           time,
+          clientName,
           carModel,
-          phone,
+          phone: cleanPhone,
           comment: comment || undefined,
         }),
       });
@@ -118,6 +134,7 @@ function App() {
       setSuccess("Заявка отправлена! Мы свяжемся с тобой для подтверждения.");
 
       setTime("");
+      setClientName("");
       setCarModel("");
       setPhone("");
       setComment("");
@@ -127,15 +144,14 @@ function App() {
     } finally {
       setSubmitting(false);
     }
-  }, [serviceId, date, time, carModel, phone, comment, twa]);
+  }, [serviceId, date, time, clientName, carModel, phone, comment, twa]);
 
-  // HTML-форма: просто делегирует submitBooking
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     submitBooking();
   };
 
-  // Управление видимостью и состоянием MainButton
+  // Управление MainButton
   useEffect(() => {
     if (!twa) return;
     const mb = twa.MainButton;
@@ -150,7 +166,6 @@ function App() {
     }
   }, [twa, isFormValid, submitting]);
 
-  // Привязка обработчика к MainButton (обновляется при смене submitBooking)
   useEffect(() => {
     if (!twa) return;
     twa.MainButton.onClick(submitBooking);
@@ -161,10 +176,9 @@ function App() {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  // Ограничения времени зависят от длительности выбранной услуги
   const selectedService = services.find((s) => s.id === serviceId);
   const durationMin = selectedService?.durationMinutes ?? 60;
-  const maxStartMin = 20 * 60 - durationMin; // последнее время начала, чтобы уложиться до 20:00
+  const maxStartMin = 20 * 60 - durationMin;
   const minTime = "09:00";
   const maxTime = [
     Math.floor(maxStartMin / 60).toString().padStart(2, "0"),
@@ -174,7 +188,6 @@ function App() {
   return (
     <div className="app-root">
       <div className="background-glow" />
-      {/* Доп. padding снизу когда MainButton занимает место */}
       <main className="app-container" style={isInTelegram ? { paddingBottom: "80px" } : undefined}>
         <header className="app-header">
           <h1>CARBASE</h1>
@@ -184,6 +197,7 @@ function App() {
         <section className="card card-main">
           <h2>Новая запись</h2>
           <form className="booking-form" onSubmit={handleSubmit}>
+
             <div className="field">
               <label>Услуга</label>
               <select
@@ -193,13 +207,14 @@ function App() {
               >
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.name}
+                    {s.name} — {formatPrice(s.price)}
                   </option>
                 ))}
               </select>
-              {serviceId && (
+              {selectedService && (
                 <p className="field-hint">
-                  {services.find((s) => s.id === serviceId)?.description}
+                  {selectedService.description}&nbsp;
+                  <span className="hint-duration">⏱ {selectedService.durationMinutes} мин</span>
                 </p>
               )}
             </div>
@@ -227,6 +242,16 @@ function App() {
             </div>
 
             <div className="field">
+              <label>Имя</label>
+              <input
+                type="text"
+                placeholder="Как к вам обращаться"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+              />
+            </div>
+
+            <div className="field">
               <label>Авто</label>
               <input
                 type="text"
@@ -240,7 +265,7 @@ function App() {
               <label>Телефон</label>
               <input
                 type="tel"
-                placeholder="+7..."
+                placeholder="+79001234567"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
@@ -259,7 +284,6 @@ function App() {
             {error && <div className="alert alert-error">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}
 
-            {/* В Telegram кнопка скрыта — используется нативный MainButton */}
             {!isInTelegram && (
               <button
                 type="submit"
@@ -274,7 +298,7 @@ function App() {
 
         <section className="card card-secondary">
           <div className="card-header-row">
-            <h2>Последние заявки</h2>
+            <h2>Мои записи</h2>
             <span className="badge">{bookings.length}</span>
           </div>
           {loading ? (
