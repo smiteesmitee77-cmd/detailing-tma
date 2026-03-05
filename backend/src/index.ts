@@ -101,6 +101,18 @@ function validateTimeSlot(date: string, time: string, durationMinutes: number): 
   const startMin = timeToMinutes(time);
   const endMin   = startMin + durationMinutes;
 
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  if (date < todayStr) {
+    return "Нельзя записаться задним числом.";
+  }
+  if (date === todayStr) {
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    if (startMin <= nowMin) {
+      return `Нельзя записаться на прошедшее время. Сейчас ${minutesToTime(nowMin)}, выберите более позднее время.`;
+    }
+  }
+
   if (startMin < WORK_START_MIN) {
     return `Мы работаем с ${minutesToTime(WORK_START_MIN)}. Выберите другое время.`;
   }

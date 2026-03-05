@@ -167,7 +167,18 @@ function App() {
   const selectedService = services.find((s) => s.id === serviceId);
   const durationMin = selectedService?.durationMinutes ?? 60;
   const maxStartMin = 20 * 60 - durationMin;
-  const minTime = "09:00";
+  const minTime = (() => {
+    if (date === today) {
+      const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes() + 1;
+      const clampedMin = Math.max(nowMin, 9 * 60);
+      return [
+        Math.floor(clampedMin / 60).toString().padStart(2, "0"),
+        (clampedMin % 60).toString().padStart(2, "0"),
+      ].join(":");
+    }
+    return "09:00";
+  })();
   const maxTime = [
     Math.floor(maxStartMin / 60).toString().padStart(2, "0"),
     (maxStartMin % 60).toString().padStart(2, "0"),
@@ -225,7 +236,16 @@ function App() {
                   value={date}
                   min={today}
                   placeholder="дд.мм.гггг"
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) => {
+                    const newDate = e.target.value;
+                    setDate(newDate);
+                    if (newDate === today && time) {
+                      const now = new Date();
+                      const nowMin = now.getHours() * 60 + now.getMinutes();
+                      const [h, m] = time.split(":").map(Number);
+                      if (h * 60 + m <= nowMin) setTime("");
+                    }
+                  }}
                 />
               </div>
               <div>
