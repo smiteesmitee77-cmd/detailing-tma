@@ -128,8 +128,8 @@ function App() {
       <div className="background-glow" />
       <main className="app-container">
         <header className="app-header">
-          <h1>Детейлинг-запись</h1>
-          <p>Быстрая запись на оклейку, мойку и замену шин.</p>
+          <h1>CARBASE</h1>
+          <p>Запись на оклейку, мойку и замену шин</p>
         </header>
 
         <section className="card card-main">

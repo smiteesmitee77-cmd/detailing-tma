@@ -1,15 +1,14 @@
 :root {
   color-scheme: dark;
-  --bg: #050509;
-  --bg-elevated: #14151a;
-  --bg-elevated-soft: #16171d;
+  --bg: #000;
+  --bg-elevated: #0a0a0a;
+  --bg-card: #0f0f0f;
   --accent: #25c2a0;
-  --accent-soft: rgba(37, 194, 160, 0.3);
-  --accent-glow: rgba(37, 194, 160, 0.25);
-  --accent-secondary: #5be7c4;
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --text: #f5f5f7;
-  --text-soft: #8e8e93;
+  --accent-dim: rgba(37, 194, 160, 0.15);
+  --text: #f0f0f0;
+  --text-soft: #666;
+  --text-muted: #444;
+  --divider: rgba(255, 255, 255, 0.06);
   --error: #ff453a;
   --success: #32d74b;
 }
@@ -25,8 +24,9 @@ body {
   min-height: 100vh;
   font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text",
     "Segoe UI", sans-serif;
-  background: radial-gradient(circle at top, #0b0c10 0, #020304 55%, #000 100%);
+  background: #000;
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
 }
 
 .app-root {
@@ -34,88 +34,75 @@ body {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  padding: 24px 12px;
-  position: relative;
-  overflow: hidden;
+  padding: 0;
 }
 
 .background-glow {
-  position: absolute;
-  inset: -40%;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(37, 194, 160, 0.35), transparent 55%),
-    radial-gradient(circle at 100% 0%, rgba(10, 132, 255, 0.2), transparent 55%),
-    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.95), #000 70%);
-  filter: blur(22px);
-  opacity: 0.8;
-  z-index: -1;
+  display: none;
 }
 
 .app-container {
   width: 100%;
-  max-width: 960px;
+  max-width: 640px;
   margin: auto;
-  background: linear-gradient(145deg, #101117, #06070b);
-  border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 28px 80px rgba(0, 0, 0, 0.95),
-    0 0 0 0.5px rgba(255, 255, 255, 0.05),
-    0 0 60px 0 var(--accent-glow);
-  padding: 20px 20px 18px;
-  backdrop-filter: blur(32px);
+  background: var(--bg);
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  padding: 0 0 40px;
 }
 
 .app-header {
-  padding: 8px 4px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 16px;
+  padding: 36px 24px 28px;
+  border-bottom: 1px solid var(--divider);
+  margin-bottom: 0;
+  text-align: center;
 }
 
 .app-header h1 {
-  margin: 0 0 4px;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-  font-weight: 600;
+  margin: 0 0 6px;
+  font-size: 2rem;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  text-transform: uppercase;
   color: var(--text);
 }
 
 .app-header p {
   margin: 0;
   color: var(--text-soft);
-  font-size: 0.9rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .card {
-  border-radius: 24px;
-  border: 1px solid var(--border-subtle);
-  background: radial-gradient(
-      circle at top left,
-      rgba(255, 255, 255, 0.02),
-      transparent 55%
-    ),
-    linear-gradient(145deg, #171821, #101117);
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.9),
-    0 0 0 0.5px rgba(255, 255, 255, 0.03);
-  padding: 18px 16px 16px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--divider);
+  background: var(--bg-card);
+  box-shadow: none;
+  padding: 24px;
 }
 
 .card + .card {
-  margin-top: 14px;
+  margin-top: 0;
 }
 
 .card-main h2,
 .card-secondary h2 {
-  margin: 0 0 10px;
-  font-size: 1.05rem;
+  margin: 0 0 18px;
+  font-size: 0.7rem;
   font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-soft);
 }
 
 .booking-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .field {
@@ -126,7 +113,7 @@ body {
 
 .field-inline {
   flex-direction: row;
-  gap: 8px;
+  gap: 12px;
 }
 
 .field-inline > div {
@@ -134,120 +121,113 @@ body {
 }
 
 label {
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--text-soft);
 }
 
 input,
 select,
 textarea {
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #101117;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
   color: var(--text);
-  padding: 10px 12px;
-  font-size: 0.9rem;
+  padding: 8px 0;
+  font-size: 0.95rem;
   outline: none;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background-color 0.15s ease;
+  transition: border-color 0.15s ease;
+  width: 100%;
+  font-family: inherit;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: rgba(142, 142, 147, 0.9);
+  color: var(--text-muted);
 }
 
 input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--accent);
-  box-shadow:
-    0 0 0 1px var(--accent),
-    0 0 0 6px rgba(37, 194, 160, 0.18);
+  box-shadow: none;
 }
 
 select {
   cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 textarea {
-  resize: vertical;
+  resize: none;
   min-height: 72px;
 }
 
 .field-hint {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--text-soft);
+  letter-spacing: 0.04em;
 }
 
 .primary-button {
-  margin-top: 6px;
-  border-radius: 999px;
-  border: none;
-  padding: 11px 18px;
-  font-size: 0.92rem;
+  margin-top: 8px;
+  border-radius: 0;
+  border: 1px solid var(--accent);
+  padding: 13px 18px;
+  font-size: 0.78rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #25c2a0, #12b48f);
-  color: #000;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--accent);
   cursor: pointer;
-  box-shadow:
-    0 18px 36px rgba(0, 0, 0, 0.9),
-    0 0 30px 0 rgba(37, 194, 160, 0.7);
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  width: 100%;
   transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease,
-    filter 0.12s ease,
-    opacity 0.12s ease;
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .primary-button:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
-  box-shadow:
-    0 22px 44px rgba(0, 0, 0, 0.95),
-    0 0 40px 0 rgba(37, 194, 160, 0.9);
+  background: var(--accent);
+  color: #000;
 }
 
 .primary-button:active {
-  transform: translateY(0);
-  box-shadow:
-    0 12px 26px rgba(0, 0, 0, 0.9),
-    0 0 24px 0 rgba(37, 194, 160, 0.7);
+  background: var(--accent);
+  color: #000;
+  opacity: 0.85;
 }
 
 .primary-button:disabled {
-  opacity: 0.6;
+  opacity: 0.35;
   cursor: default;
-  box-shadow:
-    0 10px 20px rgba(0, 0, 0, 0.8),
-    0 0 18px 0 rgba(37, 194, 160, 0.4);
 }
 
 .alert {
-  border-radius: 12px;
-  padding: 8px 10px;
-  font-size: 0.8rem;
-  border: 1px solid transparent;
+  border-radius: 0;
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  border: none;
+  border-left: 2px solid;
 }
 
 .alert-error {
-  background: rgba(248, 113, 113, 0.08);
-  border-color: rgba(248, 113, 113, 0.4);
+  background: rgba(255, 69, 58, 0.06);
+  border-color: var(--error);
   color: var(--error);
 }
 
 .alert-success {
-  background: rgba(34, 197, 94, 0.08);
-  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(50, 215, 75, 0.06);
+  border-color: var(--success);
   color: var(--success);
 }
 
@@ -255,18 +235,19 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  font-size: 0.72rem;
+  padding: 1px 7px;
+  border-radius: 0;
+  background: transparent;
+  border: 1px solid var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
   color: var(--text-soft);
 }
 
@@ -281,29 +262,30 @@ textarea {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 220px;
+  gap: 0;
+  max-height: 260px;
   overflow: auto;
 }
 
 .booking-item {
-  border-radius: 14px;
-  border: 1px solid rgba(51, 65, 85, 0.9);
-  background: linear-gradient(
-    120deg,
-    rgba(15, 23, 42, 0.98),
-    rgba(17, 24, 39, 0.96)
-  );
-  padding: 8px 10px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--divider);
+  background: transparent;
+  padding: 12px 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
+.booking-item:last-child {
+  border-bottom: none;
+}
+
 .booking-main {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .booking-title {
@@ -316,13 +298,14 @@ textarea {
 .service-name {
   font-size: 0.88rem;
   font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .booking-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  font-size: 0.76rem;
+  gap: 12px;
+  font-size: 0.74rem;
   color: var(--text-soft);
 }
 
@@ -330,7 +313,7 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   color: var(--text-soft);
 }
 
@@ -339,72 +322,65 @@ textarea {
 }
 
 .comment {
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 .status {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 0;
+  font-size: 0.62rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
+  border: 1px solid;
 }
 
 .status-pending {
-  background: rgba(251, 191, 36, 0.08);
-  border: 1px solid rgba(251, 191, 36, 0.6);
+  background: transparent;
+  border-color: rgba(251, 191, 36, 0.4);
   color: #facc15;
 }
 
 .status-confirmed {
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.6);
+  background: transparent;
+  border-color: rgba(50, 215, 75, 0.4);
   color: #4ade80;
 }
 
 .status-done {
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.6);
-  color: #60a5fa;
+  background: transparent;
+  border-color: rgba(37, 194, 160, 0.4);
+  color: var(--accent);
 }
 
 .status-cancelled {
-  background: rgba(248, 113, 113, 0.08);
-  border: 1px solid rgba(248, 113, 113, 0.6);
-  color: #fca5a5;
+  background: transparent;
+  border-color: rgba(255, 69, 58, 0.4);
+  color: #ff6b6b;
 }
 
 .app-footer {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(31, 41, 55, 0.9);
-  font-size: 0.78rem;
-  color: var(--text-soft);
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  margin-top: 24px;
+  padding: 0 24px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
 }
 
 @media (min-width: 800px) {
   .app-container {
-    padding: 22px 22px 20px;
-  }
-
-  .card-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 14px;
+    padding: 0 0 48px;
   }
 }
 
 @media (max-width: 599px) {
   .app-container {
-    border-radius: 18px;
-    padding: 16px 14px 14px;
+    border-radius: 0;
+    padding: 0 0 32px;
   }
 
   .field-inline {
     flex-direction: column;
   }
 }
-
