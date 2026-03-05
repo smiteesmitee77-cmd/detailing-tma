@@ -151,7 +151,12 @@ function App() {
     submitBooking();
   };
 
-  // Управление MainButton
+  // Авто-закрытие WebApp через 2.5с после успешной записи
+  useEffect(() => {
+    if (!success || !isInTelegram) return;
+    const timer = setTimeout(() => twa?.close(), 2500);
+    return () => clearTimeout(timer);
+  }, [success, isInTelegram, twa]);
   useEffect(() => {
     if (!twa) return;
     const mb = twa.MainButton;

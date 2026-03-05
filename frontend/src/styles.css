@@ -1,16 +1,23 @@
 :root {
-  color-scheme: dark;
-  --bg: #000;
-  --bg-elevated: #0a0a0a;
-  --bg-card: #0f0f0f;
-  --accent: #25c2a0;
-  --accent-dim: rgba(37, 194, 160, 0.15);
-  --text: #f0f0f0;
-  --text-soft: #666;
-  --text-muted: #444;
-  --divider: rgba(255, 255, 255, 0.06);
-  --error: #ff453a;
+  /*
+   * Все цвета берутся из Telegram WebApp theme vars.
+   * Фолбэки — тёмная тема, которая была изначально.
+   */
+  --bg:          var(--tg-theme-bg-color, #000);
+  --bg-card:     var(--tg-theme-secondary-bg-color, #0f0f0f);
+  --accent:      var(--tg-theme-button-color, #25c2a0);
+  --accent-text: var(--tg-theme-button-text-color, #000);
+  --text:        var(--tg-theme-text-color, #f0f0f0);
+  --text-soft:   var(--tg-theme-hint-color, #666);
+  --text-muted:  var(--tg-theme-hint-color, #444);
+  --link:        var(--tg-theme-link-color, #25c2a0);
+
+  /* Divider автоматически светлеет/темнеет вместе с текстом */
+  --divider: color-mix(in srgb, var(--text) 8%, transparent);
+
+  --error:   #ff453a;
   --success: #32d74b;
+  --accent-dim: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 *,
@@ -24,7 +31,7 @@ body {
   min-height: 100vh;
   font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text",
     "Segoe UI", sans-serif;
-  background: #000;
+  background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
@@ -132,7 +139,7 @@ select,
 textarea {
   border-radius: 0;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--divider);
   background: transparent;
   color: var(--text);
   padding: 8px 0;
@@ -173,6 +180,11 @@ textarea {
   letter-spacing: 0.04em;
 }
 
+.hint-duration {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
 .primary-button {
   margin-top: 8px;
   border-radius: 0;
@@ -197,12 +209,12 @@ textarea {
 
 .primary-button:hover {
   background: var(--accent);
-  color: #000;
+  color: var(--accent-text);
 }
 
 .primary-button:active {
   background: var(--accent);
-  color: #000;
+  color: var(--accent-text);
   opacity: 0.85;
 }
 
