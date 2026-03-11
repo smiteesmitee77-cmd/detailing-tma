@@ -201,6 +201,10 @@ function App() {
     (maxStartMin % 60).toString().padStart(2, "0"),
   ].join(":");
 
+  const occupiedSlotsForSelectedDate = bookings
+    .filter((b) => b.date === date && b.status !== "cancelled")
+    .map((b) => b.time);
+
   const statusLabel: Record<Booking["status"], string> = {
     pending:   "Новая",
     confirmed: "Подтверждена",
@@ -317,6 +321,7 @@ function App() {
                   value={time}
                   min={minTime}
                   max={maxTime}
+                  disabledSlots={occupiedSlotsForSelectedDate}
                   onChange={setTime}
                 />
               </div>

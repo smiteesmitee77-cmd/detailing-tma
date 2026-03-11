@@ -76,21 +76,23 @@ function Drum({ items, selectedIndex, onSelect }: DrumProps) {
   );
 }
 
+const CURRENT_YEAR = 2026;
+
 export function DatePicker({ value, min, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const today = new Date(min);
-  const todayY = today.getFullYear();
+  const todayY = CURRENT_YEAR;
   const todayM = today.getMonth();
   const todayD = today.getDate();
 
   const parsed = value ? new Date(value) : today;
-  const [selYear, setSelYear] = useState(parsed.getFullYear());
+  const [selYear, setSelYear] = useState(CURRENT_YEAR);
   const [selMonth, setSelMonth] = useState(parsed.getMonth());
   const [selDay, setSelDay] = useState(parsed.getDate());
 
-  const years = Array.from({ length: 3 }, (_, i) => String(todayY + i));
+  const years = [String(CURRENT_YEAR)];
   const months = MONTHS.map((m, i) => ({ label: m, idx: i }));
   const totalDays = daysInMonth(selYear, selMonth);
   const minDay = selYear === todayY && selMonth === todayM ? todayD : 1;

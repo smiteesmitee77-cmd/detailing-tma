@@ -5,6 +5,7 @@ type Props = {
   min: string;     // "HH:MM"
   max: string;     // "HH:MM"
   onChange: (v: string) => void;
+  disabledSlots?: string[]; // times that should appear dimmed/disabled
 };
 
 function buildSlots(min: string, max: string, step = 30): string[] {
@@ -21,10 +22,11 @@ function buildSlots(min: string, max: string, step = 30): string[] {
   return slots;
 }
 
-export function TimePicker({ value, min, max, onChange }: Props) {
+export function TimePicker({ value, min, max, onChange, disabledSlots }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const slots = buildSlots(min, max);
+  const disabledSet = new Set(disabledSlots ?? []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -50,16 +52,28 @@ export function TimePicker({ value, min, max, onChange }: Props) {
       {open && (
         <div className="picker-dropdown picker-dropdown--time">
           <div className="time-slots">
-            {slots.map((slot) => (
-              <button
-                key={slot}
-                type="button"
-                className={`time-slot${slot === value ? " time-slot--active" : ""}`}
-                onClick={() => { onChange(slot); setOpen(false); }}
-              >
-                {slot}
-              </button>
-            ))}
+            {slots.map((slot) => {
+              const isDisabled = disabledSet.has(slot);
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  className={
+                    `time-slot` +
+                    (slot === value ? " time-slot--active" : "") +
+                    (isDisabled ? " time-slot--disabled" : "")
+                  }
+                  disabled={isDisabled}
+                  onClick={() => {
+                    if (isDisabled) return;
+                    onChange(slot);
+                    setOpen(false);
+                  }}
+                >
+                  {slot}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
