@@ -61,6 +61,9 @@ function App() {
   const [myBookingsFrom, setMyBookingsFrom] = useState<"splash" | "main">("splash");
   // Анимация выхода основного контента (при возврате на splash)
   const [mainExiting, setMainExiting] = useState(false);
+  // Анимация перехода между экранами (booking ↔ myBookings)
+  const [screenExiting, setScreenExiting] = useState(false);
+  const [screenKey, setScreenKey] = useState(0);
 
   const twa = window.Telegram?.WebApp;
   const isInTelegram = !!(twa?.initData);
@@ -246,18 +249,28 @@ function App() {
     }, 400);
   }, []);
 
-  const handleToMyBookings = useCallback(() => {
-    setMyBookingsFrom("main");
-    setScreen("myBookings");
+  // Плавный переход между экранами booking ↔ myBookings
+  const switchScreen = useCallback((next: "booking" | "myBookings", from?: "splash" | "main") => {
+    if (from) setMyBookingsFrom(from);
+    setScreenExiting(true);
+    setTimeout(() => {
+      setScreen(next);
+      setScreenExiting(false);
+      setScreenKey((k) => k + 1);
+    }, 200);
   }, []);
+
+  const handleToMyBookings = useCallback(() => {
+    switchScreen("myBookings", "main");
+  }, [switchScreen]);
 
   const handleMyBookingsBack = useCallback(() => {
     if (myBookingsFrom === "main") {
-      setScreen("booking");
+      switchScreen("booking");
     } else {
       handleBackToSplash();
     }
-  }, [myBookingsFrom, handleBackToSplash]);
+  }, [myBookingsFrom, switchScreen, handleBackToSplash]);
 
   // ─── Вычисляемые значения ───
 
@@ -392,6 +405,12 @@ function App() {
         }`}
         style={isInTelegram ? { paddingBottom: "80px" } : undefined}
       >
+
+        {/* ─── Экраны с анимацией перехода ─── */}
+        <div
+          key={screenKey}
+          className={`screen-content${screenExiting ? " screen-content--exiting" : ""}`}
+        >
 
         {/* ─── Экран: Запись ─── */}
         {screen === "booking" && (
@@ -592,6 +611,8 @@ function App() {
             </section>
           </>
         )}
+
+        </div>{/* end screen-content */}
 
       </main>
     </div>
