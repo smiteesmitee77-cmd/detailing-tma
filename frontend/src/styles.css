@@ -899,6 +899,24 @@ textarea {
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
+/* ─── Field inline errors ─── */
+.field-error {
+  font-size: 0.75rem;
+  color: rgba(255, 100, 100, 0.9);
+  margin: 4px 0 0 2px;
+}
+
+input.input-error,
+textarea.input-error {
+  border-color: rgba(220, 60, 60, 0.6) !important;
+  background: rgba(220, 60, 60, 0.05) !important;
+}
+
+.custom-select__trigger.input-error {
+  border-color: rgba(220, 60, 60, 0.6) !important;
+  background: rgba(220, 60, 60, 0.05) !important;
+}
+
 /* ─── Cancel button ─── */
 .cancel-button {
   margin-top: 8px;

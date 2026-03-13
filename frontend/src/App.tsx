@@ -50,10 +50,25 @@ function App() {
   const [comment, setComment] = useState<string>("");
   const [serviceDropOpen, setServiceDropOpen] = useState(false);
   const serviceDropRef = useRef<HTMLDivElement>(null);
+  // Показывать ли inline-ошибки (только после первой попытки отправить)
+  const [submitted, setSubmitted] = useState(false);
 
   const twa = window.Telegram?.WebApp;
   const isInTelegram = !!(twa?.initData);
   const isFormValid = !!serviceId && !!date && !!time && !!clientName && !!carModel && !!phone;
+
+  const fieldErrors = {
+    serviceId: !serviceId ? "Выберите услугу" : null,
+    date: !date ? "Выберите дату" : null,
+    time: !time ? "Выберите время" : null,
+    clientName: !clientName.trim() ? "Введите ваше имя" : null,
+    carModel: !carModel.trim() ? "Введите модель автомобиля" : null,
+    phone: !phone.trim()
+      ? "Введите номер телефона"
+      : !PHONE_RE.test(phone.replace(/\s/g, ""))
+        ? "Формат: +79001234567"
+        : null,
+  };
 
   // Инициализация WebApp
   useEffect(() => {
@@ -107,14 +122,14 @@ function App() {
   }, []);
 
   const submitBooking = useCallback(async () => {
+    setSubmitted(true);
+
     if (!serviceId || !date || !time || !clientName || !carModel || !phone) {
-      setError("Заполни все обязательные поля.");
       return;
     }
 
     const cleanPhone = phone.replace(/\s/g, "");
     if (!PHONE_RE.test(cleanPhone)) {
-      setError("Некорректный номер телефона. Формат: +79001234567");
       return;
     }
 
@@ -161,7 +176,7 @@ function App() {
     } finally {
       setSubmitting(false);
     }
-  }, [serviceId, date, time, clientName, carModel, phone, comment, twa]);
+  }, [serviceId, date, time, clientName, carModel, phone, comment, twa, setSubmitted]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -282,7 +297,7 @@ function App() {
               <div className="custom-select" ref={serviceDropRef}>
                 <button
                   type="button"
-                  className={`custom-select__trigger${serviceDropOpen ? " custom-select__trigger--open" : ""}`}
+                  className={`custom-select__trigger${serviceDropOpen ? " custom-select__trigger--open" : ""}${submitted && fieldErrors.serviceId ? " input-error" : ""}`}
                   onClick={() => !loading && services.length > 0 && setServiceDropOpen(o => !o)}
                   disabled={loading || services.length === 0}
                 >
@@ -319,6 +334,7 @@ function App() {
                   <span className="hint-duration">· {selectedService.durationMinutes} мин</span>
                 </p>
               )}
+              {submitted && fieldErrors.serviceId && <p className="field-error">{fieldErrors.serviceId}</p>}
             </div>
 
             <div className="field field-inline">
@@ -337,6 +353,7 @@ function App() {
                     }
                   }}
                 />
+                {submitted && fieldErrors.date && <p className="field-error">{fieldErrors.date}</p>}
               </div>
               <div>
                 <label>Время</label>
@@ -347,6 +364,7 @@ function App() {
                   disabledSlots={occupiedSlotsForSelectedDate}
                   onChange={setTime}
                 />
+                {submitted && fieldErrors.time && <p className="field-error">{fieldErrors.time}</p>}
               </div>
             </div>
 
@@ -356,8 +374,10 @@ function App() {
                 type="text"
                 placeholder="Как к вам обращаться?"
                 value={clientName}
+                className={submitted && fieldErrors.clientName ? "input-error" : ""}
                 onChange={(e) => setClientName(e.target.value)}
               />
+              {submitted && fieldErrors.clientName && <p className="field-error">{fieldErrors.clientName}</p>}
             </div>
 
             <div className="field">
@@ -366,8 +386,10 @@ function App() {
                 type="text"
                 placeholder="Например: BMW 5-Series, белый"
                 value={carModel}
+                className={submitted && fieldErrors.carModel ? "input-error" : ""}
                 onChange={(e) => setCarModel(e.target.value)}
               />
+              {submitted && fieldErrors.carModel && <p className="field-error">{fieldErrors.carModel}</p>}
             </div>
 
             <div className="field">
@@ -376,8 +398,10 @@ function App() {
                 type="tel"
                 placeholder="+7 900 123-45-67"
                 value={phone}
+                className={submitted && fieldErrors.phone ? "input-error" : ""}
                 onChange={(e) => setPhone(e.target.value)}
               />
+              {submitted && fieldErrors.phone && <p className="field-error">{fieldErrors.phone}</p>}
             </div>
 
             <div className="field">
