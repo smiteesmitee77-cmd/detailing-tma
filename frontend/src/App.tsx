@@ -262,36 +262,6 @@ function App() {
 
   return (
     <div className="app-root">
-      <div className="bg-shapes" aria-hidden="true">
-        <svg className="bg-poly" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          {/* верхняя зона — чёрно-серые тона */}
-          <polygon points="0,0 200,0 120,160"              fill="rgba(30,30,30,0.95)" />
-          <polygon points="200,0 390,0 280,140"             fill="rgba(18,18,18,0.98)" />
-          <polygon points="120,160 280,140 390,0 200,0 0,0" fill="rgba(40,40,40,0.90)" />
-          <polygon points="0,0 120,160 0,260"               fill="rgba(22,22,22,0.96)" />
-          <polygon points="280,140 390,0 390,220"           fill="rgba(28,28,28,0.94)" />
-          {/* средняя зона */}
-          <polygon points="0,260 120,160 220,300"           fill="rgba(35,35,35,0.92)" />
-          <polygon points="120,160 280,140 220,300"         fill="rgba(25,25,25,0.95)" />
-          <polygon points="280,140 390,220 330,360"         fill="rgba(32,32,32,0.90)" />
-          <polygon points="220,300 330,360 100,420"         fill="rgba(28,28,28,0.93)" />
-          <polygon points="0,260 220,300 100,420"           fill="rgba(20,20,20,0.96)" />
-          <polygon points="330,360 390,220 390,460"         fill="rgba(38,38,38,0.88)" />
-          {/* нижняя зона */}
-          <polygon points="0,420 100,420 60,580"            fill="rgba(22,22,22,0.95)" />
-          <polygon points="100,420 330,360 250,520"         fill="rgba(30,30,30,0.90)" />
-          <polygon points="330,360 390,460 390,600 250,520" fill="rgba(18,18,18,0.96)" />
-          <polygon points="0,580 60,580 0,760"              fill="rgba(15,15,15,0.98)" />
-          <polygon points="60,580 250,520 200,700"          fill="rgba(26,26,26,0.94)" />
-          <polygon points="250,520 390,600 390,760 200,700" fill="rgba(20,20,20,0.96)" />
-          <polygon points="0,760 200,700 0,844"             fill="rgba(12,12,12,0.99)" />
-          <polygon points="200,700 390,760 390,844 0,844"   fill="rgba(16,16,16,0.98)" />
-        </svg>
-        <div className="bg-blur-overlay" />
-        <div className="bg-shape bg-shape--circle1" />
-        <div className="bg-shape bg-shape--circle2" />
-        <div className="bg-shape bg-shape--circle3" />
-      </div>
       {showSplash && (
         <div className={`splash-screen${splashExiting ? " splash-screen--exit" : ""}`}>
           <div className="splash-content">

@@ -54,71 +54,9 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: #080808;
-}
-
-.background-glow {
-  display: none;
-}
-
-/* ─── Geometric background shapes ─── */
-.bg-shapes {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-/* Low-poly SVG — треугольники видны, грани угадываются */
-.bg-poly {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(6px);
-}
-
-/* Убираем отдельный blur-оверлей — он полностью скрывал полигоны */
-.bg-blur-overlay {
-  display: none;
-}
-
-.bg-shape {
-  position: absolute;
-  border-radius: 50%;
-}
-
-/* Тёмно-серый круг — левый верх */
-.bg-shape--circle1 {
-  width: 500px;
-  height: 500px;
-  top: -180px;
-  left: -150px;
-  background: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.06) 0%, transparent 60%);
-  filter: blur(80px);
-}
-
-/* Серый круг — правый низ */
-.bg-shape--circle2 {
-  width: 440px;
-  height: 440px;
-  bottom: -140px;
-  right: -120px;
-  background: radial-gradient(circle at 60% 60%, rgba(200, 200, 200, 0.05) 0%, transparent 60%);
-  filter: blur(90px);
-}
-
-/* Тонкий акцент — центр */
-.bg-shape--circle3 {
-  width: 300px;
-  height: 300px;
-  top: 38%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 65%);
-  filter: blur(80px);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, #161616 0%, #080808 65%),
+    #080808;
 }
 
 /* ─── Layout ─── */
