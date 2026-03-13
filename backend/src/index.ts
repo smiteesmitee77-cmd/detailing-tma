@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { createBooking, getAllBookings, getBookingsByUserId, updateBookingStatus, deleteOldBookings } from "./db";
 import { bot, notifyAdmin } from "./bot";
 import { validateTelegramInitData } from "./validateInitData";
@@ -16,6 +17,26 @@ app.use(
   })
 );
 app.use(express.json());
+
+// Общий лимит для всего API: 100 запросов за 15 минут с одного IP
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Слишком много запросов. Попробуйте через несколько минут." },
+});
+
+// Строгий лимит для создания броней: 10 за 15 минут
+const bookingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Слишком много попыток записи. Попробуйте через 15 минут." },
+});
+
+app.use("/api", apiLimiter);
 
 type ResolveResult =
   | { ok: true; userId: string | undefined }
@@ -159,7 +180,7 @@ app.get("/api/bookings", (req, res) => {
   res.json(getAllBookings());
 });
 
-app.post("/api/bookings", async (req, res) => {
+app.post("/api/bookings", bookingLimiter, async (req, res) => {
   const { serviceId, date, time, clientName, carModel, phone, comment } = req.body || {};
 
   if (!serviceId || !date || !time || !clientName || !carModel || !phone) {
