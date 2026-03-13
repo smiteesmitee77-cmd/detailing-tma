@@ -325,10 +325,7 @@ function scheduleReminders() {
 }
 
 async function startBot() {
-  if (!process.env.BOT_TOKEN) {
-    console.warn("BOT_TOKEN не задан — бот не запущен.");
-    return;
-  }
+  if (!bot) return;
 
   const webhookUrl = process.env.WEBHOOK_URL;
 
@@ -339,10 +336,11 @@ async function startBot() {
     app.use(secretPath, bot.webhookCallback(secretPath));
     console.log(`[bot] Webhook установлен: ${webhookUrl}${secretPath}`);
   } else {
-    // Dev: long polling
-    bot.launch().then(() => console.log("[bot] Long polling запущен."));
-    process.once("SIGINT", () => bot.stop("SIGINT"));
-    process.once("SIGTERM", () => bot.stop("SIGTERM"));
+    // Dev: long polling (bot проверен выше через if (!bot))
+    const _bot = bot;
+    _bot.launch().then(() => console.log("[bot] Long polling запущен."));
+    process.once("SIGINT", () => _bot.stop("SIGINT"));
+    process.once("SIGTERM", () => _bot.stop("SIGTERM"));
   }
 }
 
