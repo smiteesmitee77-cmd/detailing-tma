@@ -224,6 +224,15 @@ app.post("/api/bookings", bookingLimiter, async (req, res) => {
 });
 
 app.patch("/api/bookings/:id/status", (req, res) => {
+  // Эндпоинт предназначен только для бота. Проверяем секретный заголовок.
+  const BOT_SECRET = process.env.BOT_SECRET;
+  if (BOT_SECRET) {
+    const provided = req.headers["x-bot-secret"];
+    if (provided !== BOT_SECRET) {
+      return res.status(403).json({ error: "Доступ запрещён." });
+    }
+  }
+
   const id = Number(req.params.id);
   const { status } = req.body || {};
 
