@@ -50,11 +50,17 @@ function App() {
   const [comment, setComment] = useState<string>("");
   const [serviceDropOpen, setServiceDropOpen] = useState(false);
   const serviceDropRef = useRef<HTMLDivElement>(null);
-  // Показывать ли inline-ошибки (только после первой попытки отправить)
   const [submitted, setSubmitted] = useState(false);
 
   const [showSplash, setShowSplash] = useState(true);
   const [splashExiting, setSplashExiting] = useState(false);
+
+  // Текущий экран после splash
+  const [screen, setScreen] = useState<"booking" | "myBookings">("booking");
+  // Откуда открыт экран "Мои записи" (для кнопки назад)
+  const [myBookingsFrom, setMyBookingsFrom] = useState<"splash" | "main">("splash");
+  // Анимация выхода основного контента (при возврате на splash)
+  const [mainExiting, setMainExiting] = useState(false);
 
   const twa = window.Telegram?.WebApp;
   const isInTelegram = !!(twa?.initData);
@@ -168,7 +174,6 @@ function App() {
       setBookings((prev) => [created, ...prev]);
       setSuccess("Заявка отправлена! Мы свяжемся с тобой для подтверждения.");
 
-      // Сбрасываем форму и флаг валидации — иначе пустые поля покажут ошибки
       setSubmitted(false);
       setTime("");
       setClientName("");
@@ -211,21 +216,50 @@ function App() {
     }
   }, [twa]);
 
-  // Авто-закрытие WebApp через 2.5с после успешной записи
-  useEffect(() => {
-    if (!success || !isInTelegram) return;
-    const timer = setTimeout(() => twa?.close(), 2500);
-    return () => clearTimeout(timer);
-  }, [success, isInTelegram, twa]);
   useEffect(() => {
     if (!twa) return;
     twa.MainButton.hide();
   }, [twa]);
 
-  const handleSplashEnter = useCallback(() => {
+  // ─── Навигация ───
+
+  const handleSplashToBooking = useCallback(() => {
+    setScreen("booking");
     setSplashExiting(true);
     setTimeout(() => setShowSplash(false), 560);
   }, []);
+
+  const handleSplashToMyBookings = useCallback(() => {
+    setScreen("myBookings");
+    setMyBookingsFrom("splash");
+    setSplashExiting(true);
+    setTimeout(() => setShowSplash(false), 560);
+  }, []);
+
+  const handleBackToSplash = useCallback(() => {
+    setMainExiting(true);
+    setTimeout(() => {
+      setShowSplash(true);
+      setSplashExiting(false);
+      setMainExiting(false);
+      setScreen("booking");
+    }, 400);
+  }, []);
+
+  const handleToMyBookings = useCallback(() => {
+    setMyBookingsFrom("main");
+    setScreen("myBookings");
+  }, []);
+
+  const handleMyBookingsBack = useCallback(() => {
+    if (myBookingsFrom === "main") {
+      setScreen("booking");
+    } else {
+      handleBackToSplash();
+    }
+  }, [myBookingsFrom, handleBackToSplash]);
+
+  // ─── Вычисляемые значения ───
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -260,6 +294,62 @@ function App() {
     cancelled: "Отменена",
   };
 
+  // ─── SVG иконки ───
+
+  const ArrowLeft = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 5 5 12 12 19" />
+    </svg>
+  );
+
+  const ArrowRight = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+
+  // ─── Раздел "Мои записи" (переиспользуется на двух экранах) ───
+
+  const MyBookingsContent = () => (
+    <ul className="booking-list">
+      {bookings.map((b) => (
+        <li key={b.id} className="booking-item">
+          <div className="booking-main">
+            <div className="booking-title">
+              <span className="service-name">{b.serviceName}</span>
+              <span className={`status status-${b.status}`}>
+                {statusLabel[b.status]}
+              </span>
+            </div>
+            <div className="booking-meta">
+              <span>{b.date} · {b.time}</span>
+              <span>{b.carModel}</span>
+            </div>
+          </div>
+          <div className="booking-extra">
+            <span className="phone">{b.phone}</span>
+            {b.comment && (
+              <span className="comment">«{b.comment}»</span>
+            )}
+          </div>
+          {(b.status === "pending" || b.status === "confirmed") && isInTelegram && (
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={() => cancelBooking(b.id)}
+            >
+              Отменить
+            </button>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <div className="app-root">
       {showSplash && (
@@ -279,212 +369,246 @@ function App() {
               <p className="splash-subtitle">Оклейка · Мойка · Шиномонтаж</p>
             </div>
             <div className="splash-divider" />
-            <button className="splash-button" onClick={handleSplashEnter}>
-              <span>Записаться</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </button>
+            <div className="splash-actions">
+              <button className="splash-button" onClick={handleSplashToBooking}>
+                <span>Записаться</span>
+                <ArrowRight />
+              </button>
+              <button className="splash-secondary-button" onClick={handleSplashToMyBookings}>
+                Мои записи
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       <main
-        className={`app-container${splashExiting || !showSplash ? " app-entering" : " app-invisible"}`}
+        className={`app-container${
+          showSplash && !splashExiting
+            ? " app-invisible"
+            : mainExiting
+              ? " app-exiting"
+              : " app-entering"
+        }`}
         style={isInTelegram ? { paddingBottom: "80px" } : undefined}
       >
-        <header className="app-header">
-          <h1>CARBASE</h1>
-          <p>Оклейка · Мойка · Шиномонтаж</p>
-        </header>
 
-        <section className="card card-main">
-          <h2>Новая запись</h2>
-          <form className="booking-form" onSubmit={handleSubmit}>
+        {/* ─── Экран: Запись ─── */}
+        {screen === "booking" && (
+          <>
+            <header className="app-header">
+              <button className="back-button" onClick={handleBackToSplash} aria-label="Назад">
+                <ArrowLeft />
+                <span>Назад</span>
+              </button>
+              <h1>CARBASE</h1>
+              <p>Оклейка · Мойка · Шиномонтаж</p>
+            </header>
 
-            <div className="field">
-              <label>Услуга</label>
-              <div className="custom-select" ref={serviceDropRef}>
-                <button
-                  type="button"
-                  className={`custom-select__trigger${serviceDropOpen ? " custom-select__trigger--open" : ""}${submitted && fieldErrors.serviceId ? " input-error" : ""}`}
-                  onClick={() => !loading && services.length > 0 && setServiceDropOpen(o => !o)}
-                  disabled={loading || services.length === 0}
-                >
-                  <span>
-                    {loading
-                      ? "Загружаем услуги…"
-                      : selectedService
-                        ? `${selectedService.name} — ${formatPrice(selectedService.price)}`
-                        : "Выберите услугу"
-                    }
-                  </span>
-                  <svg className="custom-select__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                {serviceDropOpen && (
-                  <ul className="custom-select__dropdown">
-                    {services.map((s) => (
-                      <li
-                        key={s.id}
-                        className={`custom-select__option${s.id === serviceId ? " custom-select__option--active" : ""}`}
-                        onClick={() => { setServiceId(s.id); setServiceDropOpen(false); }}
-                      >
-                        <span className="custom-select__option-name">{s.name}</span>
-                        <span className="custom-select__option-price">{formatPrice(s.price)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              {selectedService && (
-                <p className="field-hint">
-                  {selectedService.description}&nbsp;
-                  <span className="hint-duration">· {selectedService.durationMinutes} мин</span>
-                </p>
-              )}
-              {submitted && fieldErrors.serviceId && <p className="field-error">{fieldErrors.serviceId}</p>}
-            </div>
+            <section className="card card-main">
+              <h2>Новая запись</h2>
+              <form className="booking-form" onSubmit={handleSubmit}>
 
-            <div className="field field-inline">
-              <div>
-                <label>Дата</label>
-                <DatePicker
-                  value={date}
-                  min={today}
-                  onChange={(v) => {
-                    setDate(v);
-                    if (v === today && time) {
-                      const now = new Date();
-                      const nowMin = now.getHours() * 60 + now.getMinutes();
-                      const [h, m] = time.split(":").map(Number);
-                      if (h * 60 + m <= nowMin) setTime("");
-                    }
-                  }}
-                />
-                {submitted && fieldErrors.date && <p className="field-error">{fieldErrors.date}</p>}
-              </div>
-              <div>
-                <label>Время</label>
-                <TimePicker
-                  value={time}
-                  min={minTime}
-                  max={maxTime}
-                  disabledSlots={occupiedSlotsForSelectedDate}
-                  onChange={setTime}
-                />
-                {submitted && fieldErrors.time && <p className="field-error">{fieldErrors.time}</p>}
-              </div>
-            </div>
-
-            <div className="field">
-              <label>Имя</label>
-              <input
-                type="text"
-                placeholder="Как к вам обращаться?"
-                value={clientName}
-                className={submitted && fieldErrors.clientName ? "input-error" : ""}
-                onChange={(e) => setClientName(e.target.value)}
-              />
-              {submitted && fieldErrors.clientName && <p className="field-error">{fieldErrors.clientName}</p>}
-            </div>
-
-            <div className="field">
-              <label>Автомобиль</label>
-              <input
-                type="text"
-                placeholder="Например: BMW 5-Series, белый"
-                value={carModel}
-                className={submitted && fieldErrors.carModel ? "input-error" : ""}
-                onChange={(e) => setCarModel(e.target.value)}
-              />
-              {submitted && fieldErrors.carModel && <p className="field-error">{fieldErrors.carModel}</p>}
-            </div>
-
-            <div className="field">
-              <label>Телефон</label>
-              <input
-                type="tel"
-                placeholder="+7 900 123-45-67"
-                value={phone}
-                className={submitted && fieldErrors.phone ? "input-error" : ""}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              {submitted && fieldErrors.phone && <p className="field-error">{fieldErrors.phone}</p>}
-            </div>
-
-            <div className="field">
-              <label>Комментарий</label>
-              <textarea
-                placeholder="Особые пожелания, цвет плёнки, пожелания по времени…"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            {error && <div className="alert alert-error">{error}</div>}
-            {success && <div className="alert alert-success">{success}</div>}
-
-            <button
-              type="submit"
-              className={`primary-button${!isFormValid ? " primary-button--dim" : ""}${submitting ? " primary-button--loading" : ""}`}
-              disabled={submitting}
-            >
-              {submitting ? "Отправляем…" : "Записаться"}
-            </button>
-          </form>
-        </section>
-
-        <section className="card card-secondary">
-          <div className="card-header-row">
-            <h2>Мои записи</h2>
-            <span className="badge">{bookings.length}</span>
-          </div>
-          {loading ? (
-            <div className="skeleton-list">
-              {[1, 2].map((n) => <div key={n} className="skeleton-item" />)}
-            </div>
-          ) : bookings.length === 0 ? (
-            <p className="muted">Здесь появятся ваши записи</p>
-          ) : (
-            <ul className="booking-list">
-              {bookings.map((b) => (
-                <li key={b.id} className="booking-item">
-                  <div className="booking-main">
-                    <div className="booking-title">
-                      <span className="service-name">{b.serviceName}</span>
-                      <span className={`status status-${b.status}`}>
-                        {statusLabel[b.status]}
-                      </span>
-                    </div>
-                    <div className="booking-meta">
-                      <span>{b.date} · {b.time}</span>
-                      <span>{b.carModel}</span>
-                    </div>
-                  </div>
-                  <div className="booking-extra">
-                    <span className="phone">{b.phone}</span>
-                    {b.comment && (
-                      <span className="comment">«{b.comment}»</span>
-                    )}
-                  </div>
-                  {(b.status === "pending" || b.status === "confirmed") && isInTelegram && (
+                <div className="field">
+                  <label>Услуга</label>
+                  <div className="custom-select" ref={serviceDropRef}>
                     <button
                       type="button"
-                      className="cancel-button"
-                      onClick={() => cancelBooking(b.id)}
+                      className={`custom-select__trigger${serviceDropOpen ? " custom-select__trigger--open" : ""}${submitted && fieldErrors.serviceId ? " input-error" : ""}`}
+                      onClick={() => !loading && services.length > 0 && setServiceDropOpen(o => !o)}
+                      disabled={loading || services.length === 0}
                     >
-                      Отменить
+                      <span>
+                        {loading
+                          ? "Загружаем услуги…"
+                          : selectedService
+                            ? `${selectedService.name} — ${formatPrice(selectedService.price)}`
+                            : "Выберите услугу"
+                        }
+                      </span>
+                      <svg className="custom-select__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
                     </button>
+                    {serviceDropOpen && (
+                      <ul className="custom-select__dropdown">
+                        {services.map((s) => (
+                          <li
+                            key={s.id}
+                            className={`custom-select__option${s.id === serviceId ? " custom-select__option--active" : ""}`}
+                            onClick={() => { setServiceId(s.id); setServiceDropOpen(false); }}
+                          >
+                            <span className="custom-select__option-name">{s.name}</span>
+                            <span className="custom-select__option-price">{formatPrice(s.price)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {selectedService && (
+                    <p className="field-hint">
+                      {selectedService.description}&nbsp;
+                      <span className="hint-duration">· {selectedService.durationMinutes} мин</span>
+                    </p>
                   )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+                  {submitted && fieldErrors.serviceId && <p className="field-error">{fieldErrors.serviceId}</p>}
+                </div>
+
+                <div className="field field-inline">
+                  <div>
+                    <label>Дата</label>
+                    <DatePicker
+                      value={date}
+                      min={today}
+                      onChange={(v) => {
+                        setDate(v);
+                        if (v === today && time) {
+                          const now = new Date();
+                          const nowMin = now.getHours() * 60 + now.getMinutes();
+                          const [h, m] = time.split(":").map(Number);
+                          if (h * 60 + m <= nowMin) setTime("");
+                        }
+                      }}
+                    />
+                    {submitted && fieldErrors.date && <p className="field-error">{fieldErrors.date}</p>}
+                  </div>
+                  <div>
+                    <label>Время</label>
+                    <TimePicker
+                      value={time}
+                      min={minTime}
+                      max={maxTime}
+                      disabledSlots={occupiedSlotsForSelectedDate}
+                      onChange={setTime}
+                    />
+                    {submitted && fieldErrors.time && <p className="field-error">{fieldErrors.time}</p>}
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label>Имя</label>
+                  <input
+                    type="text"
+                    placeholder="Как к вам обращаться?"
+                    value={clientName}
+                    className={submitted && fieldErrors.clientName ? "input-error" : ""}
+                    onChange={(e) => setClientName(e.target.value)}
+                  />
+                  {submitted && fieldErrors.clientName && <p className="field-error">{fieldErrors.clientName}</p>}
+                </div>
+
+                <div className="field">
+                  <label>Автомобиль</label>
+                  <input
+                    type="text"
+                    placeholder="Например: BMW 5-Series, белый"
+                    value={carModel}
+                    className={submitted && fieldErrors.carModel ? "input-error" : ""}
+                    onChange={(e) => setCarModel(e.target.value)}
+                  />
+                  {submitted && fieldErrors.carModel && <p className="field-error">{fieldErrors.carModel}</p>}
+                </div>
+
+                <div className="field">
+                  <label>Телефон</label>
+                  <input
+                    type="tel"
+                    placeholder="+7 900 123-45-67"
+                    value={phone}
+                    className={submitted && fieldErrors.phone ? "input-error" : ""}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                  {submitted && fieldErrors.phone && <p className="field-error">{fieldErrors.phone}</p>}
+                </div>
+
+                <div className="field">
+                  <label>Комментарий</label>
+                  <textarea
+                    placeholder="Особые пожелания, цвет плёнки, пожелания по времени…"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+
+                {error && <div className="alert alert-error">{error}</div>}
+                {success && <div className="alert alert-success">{success}</div>}
+
+                <button
+                  type="submit"
+                  className={`primary-button${!isFormValid ? " primary-button--dim" : ""}${submitting ? " primary-button--loading" : ""}`}
+                  disabled={submitting}
+                >
+                  {submitting ? "Отправляем…" : "Записаться"}
+                </button>
+              </form>
+            </section>
+
+            <section className="card card-secondary">
+              <div className="card-header-row">
+                <h2>Мои записи</h2>
+                <span className="badge">{bookings.length}</span>
+              </div>
+              {loading ? (
+                <div className="skeleton-list">
+                  {[1, 2].map((n) => <div key={n} className="skeleton-item" />)}
+                </div>
+              ) : bookings.length === 0 ? (
+                <p className="muted">Здесь появятся ваши записи</p>
+              ) : (
+                <MyBookingsContent />
+              )}
+            </section>
+
+            <button
+              type="button"
+              className="my-bookings-nav-button"
+              onClick={handleToMyBookings}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <circle cx="3" cy="6" r="0.5" fill="currentColor" />
+                <circle cx="3" cy="12" r="0.5" fill="currentColor" />
+                <circle cx="3" cy="18" r="0.5" fill="currentColor" />
+              </svg>
+              Мои записи
+            </button>
+          </>
+        )}
+
+        {/* ─── Экран: Мои записи ─── */}
+        {screen === "myBookings" && (
+          <>
+            <header className="app-header app-header--bookings">
+              <button className="back-button" onClick={handleMyBookingsBack} aria-label="Назад">
+                <ArrowLeft />
+                <span>Назад</span>
+              </button>
+              <h1>Мои записи</h1>
+              <p>История записей</p>
+            </header>
+
+            <section className="card card-secondary card-secondary--full">
+              <div className="card-header-row">
+                <h2>Все записи</h2>
+                <span className="badge">{bookings.length}</span>
+              </div>
+              {loading ? (
+                <div className="skeleton-list">
+                  {[1, 2, 3].map((n) => <div key={n} className="skeleton-item" />)}
+                </div>
+              ) : bookings.length === 0 ? (
+                <p className="muted">У вас пока нет записей</p>
+              ) : (
+                <MyBookingsContent />
+              )}
+            </section>
+          </>
+        )}
+
       </main>
     </div>
   );

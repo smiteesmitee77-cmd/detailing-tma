@@ -73,6 +73,17 @@ body {
 .app-header {
   padding: 48px 8px 32px;
   text-align: center;
+  position: relative;
+}
+
+/* Вариант хедера для экрана "Мои записи" — чуть компактнее */
+.app-header--bookings {
+  padding: 40px 8px 24px;
+}
+
+.app-header--bookings h1 {
+  font-size: 1.55rem;
+  letter-spacing: 0.18em;
 }
 
 .app-header h1 {
@@ -1046,6 +1057,127 @@ textarea.input-error {
   animation: none;
 }
 
+/* ─── Back button ─── */
+.back-button {
+  position: absolute;
+  top: 18px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  transition: color 0.18s ease, background 0.18s ease;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.back-button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.back-button:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Splash action buttons container ─── */
+.splash-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ─── Splash secondary button ("Мои записи") ─── */
+.splash-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-xl);
+  padding: 14px 52px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  font-family: inherit;
+  color: rgba(200, 200, 200, 0.65);
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    background 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    transform 0.18s ease;
+}
+
+.splash-secondary-button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: rgba(240, 240, 240, 0.9);
+  transform: translateY(-2px);
+}
+
+.splash-secondary-button:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ─── "Мои записи" кнопка-навигатор внизу основной страницы ─── */
+.my-bookings-nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease;
+  margin-bottom: 16px;
+}
+
+.my-bookings-nav-button:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text);
+}
+
+.my-bookings-nav-button:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Полноэкранный список записей (без ограничения высоты) ─── */
+.card-secondary--full .booking-list {
+  max-height: none;
+}
+
 /* ─── Main content visibility states ─── */
 .app-invisible {
   opacity: 0;
@@ -1059,6 +1191,17 @@ textarea.input-error {
 @keyframes appEnter {
   from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Анимация выхода (при возврате на splash) */
+.app-exiting {
+  animation: appExit 0.4s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes appExit {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(20px); }
 }
 
 /* ─── Responsive ─── */
@@ -1086,6 +1229,15 @@ textarea.input-error {
     letter-spacing: 0.25em;
   }
 
+  .app-header--bookings h1 {
+    font-size: 1.4rem;
+    letter-spacing: 0.14em;
+  }
+
+  .back-button {
+    top: 12px;
+  }
+
   .splash-title {
     font-size: 2.9rem;
     letter-spacing: 0.35em;
@@ -1095,6 +1247,11 @@ textarea.input-error {
   .splash-button {
     padding: 18px 52px;
     font-size: 0.98rem;
+  }
+
+  .splash-secondary-button {
+    padding: 13px 44px;
+    font-size: 0.86rem;
   }
 
   .splash-content {
