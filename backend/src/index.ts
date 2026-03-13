@@ -288,11 +288,6 @@ app.patch("/api/bookings/:id/status", (req, res) => {
   res.json(updated);
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend listening on http://localhost:${PORT}`);
-  scheduleCleanup();
-});
-
 const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 часа
 
 function runCleanup() {
@@ -313,12 +308,30 @@ function scheduleCleanup() {
   timer.unref();
 }
 
-if (process.env.BOT_TOKEN) {
-  bot.launch().then(() => {
-    console.log("Bot started.");
-  });
-  process.once("SIGINT", () => bot.stop("SIGINT"));
-  process.once("SIGTERM", () => bot.stop("SIGTERM"));
-} else {
-  console.warn("BOT_TOKEN не задан — бот не запущен.");
+async function startBot() {
+  if (!process.env.BOT_TOKEN) {
+    console.warn("BOT_TOKEN не задан — бот не запущен.");
+    return;
+  }
+
+  const webhookUrl = process.env.WEBHOOK_URL;
+
+  if (webhookUrl) {
+    // Продакшн: Telegram сам шлёт обновления к нам на /webhook
+    const secretPath = `/webhook/${process.env.BOT_TOKEN}`;
+    await bot.telegram.setWebhook(`${webhookUrl}${secretPath}`);
+    app.use(secretPath, bot.webhookCallback(secretPath));
+    console.log(`[bot] Webhook установлен: ${webhookUrl}${secretPath}`);
+  } else {
+    // Dev: long polling
+    bot.launch().then(() => console.log("[bot] Long polling запущен."));
+    process.once("SIGINT", () => bot.stop("SIGINT"));
+    process.once("SIGTERM", () => bot.stop("SIGTERM"));
+  }
 }
+
+app.listen(PORT, () => {
+  console.log(`Backend listening on http://localhost:${PORT}`);
+  scheduleCleanup();
+  startBot();
+});
