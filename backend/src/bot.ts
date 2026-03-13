@@ -127,33 +127,48 @@ async function updateAdminMessage(bookingId: number, booking: Booking) {
 
 if (bot) {
   bot.action(/^confirm:(\d+)$/, async (ctx) => {
-    const id = Number(ctx.match[1]);
-    const updated = updateBookingStatus(id, "confirmed");
-    if (updated) {
-      await updateAdminMessage(id, updated);
-      notifyUser(updated).catch((e) => console.error("[bot] notifyUser error:", e));
+    try {
+      const id = Number(ctx.match[1]);
+      const updated = updateBookingStatus(id, "confirmed");
+      if (updated) {
+        await updateAdminMessage(id, updated);
+        notifyUser(updated).catch((e) => console.error("[bot] notifyUser error:", e));
+      }
+      await ctx.answerCbQuery("Бронь подтверждена ✅");
+    } catch (e) {
+      console.error("[bot] confirm error:", e);
+      await ctx.answerCbQuery("Ошибка при подтверждении").catch(() => {});
     }
-    await ctx.answerCbQuery("Бронь подтверждена ✅");
   });
 
   bot.action(/^cancel:(\d+)$/, async (ctx) => {
-    const id = Number(ctx.match[1]);
-    const updated = updateBookingStatus(id, "cancelled");
-    if (updated) {
-      await updateAdminMessage(id, updated);
-      notifyUser(updated).catch((e) => console.error("[bot] notifyUser error:", e));
+    try {
+      const id = Number(ctx.match[1]);
+      const updated = updateBookingStatus(id, "cancelled");
+      if (updated) {
+        await updateAdminMessage(id, updated);
+        notifyUser(updated).catch((e) => console.error("[bot] notifyUser error:", e));
+      }
+      await ctx.answerCbQuery("Бронь отменена ❌");
+    } catch (e) {
+      console.error("[bot] cancel error:", e);
+      await ctx.answerCbQuery("Ошибка при отмене").catch(() => {});
     }
-    await ctx.answerCbQuery("Бронь отменена ❌");
   });
 
   bot.action(/^done:(\d+)$/, async (ctx) => {
-    const id = Number(ctx.match[1]);
-    const updated = updateBookingStatus(id, "done");
-    if (updated) {
-      await updateAdminMessage(id, updated);
-      notifyUser(updated).catch((e) => console.error("[bot] notifyUser error:", e));
+    try {
+      const id = Number(ctx.match[1]);
+      const updated = updateBookingStatus(id, "done");
+      if (updated) {
+        await updateAdminMessage(id, updated);
+        notifyUser(updated).catch((e) => console.error("[bot] notifyUser error:", e));
+      }
+      await ctx.answerCbQuery("Отмечено как выполнено 🏁");
+    } catch (e) {
+      console.error("[bot] done error:", e);
+      await ctx.answerCbQuery("Ошибка").catch(() => {});
     }
-    await ctx.answerCbQuery("Отмечено как выполнено 🏁");
   });
 
   bot.start((ctx) => {

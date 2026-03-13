@@ -165,6 +165,8 @@ function App() {
       setBookings((prev) => [created, ...prev]);
       setSuccess("Заявка отправлена! Мы свяжемся с тобой для подтверждения.");
 
+      // Сбрасываем форму и флаг валидации — иначе пустые поля покажут ошибки
+      setSubmitted(false);
       setTime("");
       setClientName("");
       setCarModel("");
