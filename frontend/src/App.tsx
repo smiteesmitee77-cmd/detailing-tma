@@ -53,6 +53,9 @@ function App() {
   // Показывать ли inline-ошибки (только после первой попытки отправить)
   const [submitted, setSubmitted] = useState(false);
 
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashExiting, setSplashExiting] = useState(false);
+
   const twa = window.Telegram?.WebApp;
   const isInTelegram = !!(twa?.initData);
   const isFormValid = !!serviceId && !!date && !!time && !!clientName && !!carModel && !!phone;
@@ -219,6 +222,11 @@ function App() {
     twa.MainButton.hide();
   }, [twa]);
 
+  const handleSplashEnter = useCallback(() => {
+    setSplashExiting(true);
+    setTimeout(() => setShowSplash(false), 560);
+  }, []);
+
   const today = new Date().toISOString().slice(0, 10);
 
   const selectedService = services.find((s) => s.id === serviceId);
@@ -284,7 +292,36 @@ function App() {
         <div className="bg-shape bg-shape--circle2" />
         <div className="bg-shape bg-shape--circle3" />
       </div>
-      <main className="app-container" style={isInTelegram ? { paddingBottom: "80px" } : undefined}>
+      {showSplash && (
+        <div className={`splash-screen${splashExiting ? " splash-screen--exit" : ""}`}>
+          <div className="splash-content">
+            <div className="splash-logo">
+              <svg className="splash-icon" width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="26" cy="26" r="25" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+                <path d="M10 28 L14 20 Q15.5 17 18 17 L34 17 Q36.5 17 38 20 L42 28" stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                <rect x="10" y="28" width="32" height="7" rx="3" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" />
+                <circle cx="17" cy="37" r="3.5" fill="none" stroke="rgba(74,222,128,0.7)" strokeWidth="1.5" />
+                <circle cx="35" cy="37" r="3.5" fill="none" stroke="rgba(74,222,128,0.7)" strokeWidth="1.5" />
+                <path d="M18 22 L22 22" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M30 22 L34 22" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              <h1 className="splash-title">CARBASE</h1>
+              <p className="splash-subtitle">Оклейка · Мойка · Шиномонтаж</p>
+            </div>
+            <div className="splash-divider" />
+            <button className="splash-button" onClick={handleSplashEnter}>
+              <span>Записаться</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!showSplash && (
+      <main className="app-container app-entering" style={isInTelegram ? { paddingBottom: "80px" } : undefined}>
         <header className="app-header">
           <h1>CARBASE</h1>
           <p>Оклейка · Мойка · Шиномонтаж</p>
@@ -477,6 +514,7 @@ function App() {
           )}
         </section>
       </main>
+      )}
     </div>
   );
 }
