@@ -97,6 +97,13 @@ try {
   // колонка уже существует — пропускаем
 }
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS admins (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT    NOT NULL UNIQUE
+  )
+`);
+
 export type Service = {
   id: string;
   name: string;
@@ -196,6 +203,47 @@ export const updateBookingStatus = (id: number, status: BookingStatus): Booking 
 
 export const saveMessageRef = (bookingId: number, chatId: string, messageId: number) => {
   db.prepare("UPDATE bookings SET msgChatId = ?, msgId = ? WHERE id = ?").run(chatId, messageId, bookingId);
+};
+
+export const updateBookingDetails = (
+  id: number,
+  updates: { date?: string; time?: string; serviceId?: string; serviceName?: string }
+): Booking | undefined => {
+  const parts: string[] = [];
+  const values: unknown[] = [];
+  if (updates.date !== undefined) { parts.push("date = ?"); values.push(updates.date); }
+  if (updates.time !== undefined) { parts.push("time = ?"); values.push(updates.time); }
+  if (updates.serviceId !== undefined) { parts.push("serviceId = ?"); values.push(updates.serviceId); }
+  if (updates.serviceName !== undefined) { parts.push("serviceName = ?"); values.push(updates.serviceName); }
+  if (parts.length === 0) return getBookingById(id);
+  values.push(id);
+  db.prepare(`UPDATE bookings SET ${parts.join(", ")} WHERE id = ?`).run(values);
+  return getBookingById(id);
+};
+
+export const getAdmins = (): string[] => {
+  return (db.prepare("SELECT username FROM admins ORDER BY id ASC").all() as { username: string }[]).map(
+    (r) => r.username
+  );
+};
+
+export const addAdmin = (username: string): void => {
+  db.prepare("INSERT OR IGNORE INTO admins (username) VALUES (?)").run(username.toLowerCase());
+};
+
+export const removeAdmin = (username: string): boolean => {
+  const result = db.prepare("DELETE FROM admins WHERE username = ?").run(username.toLowerCase());
+  return result.changes > 0;
+};
+
+export const isAdminUsername = (username: string): boolean => {
+  const envAdmins = (process.env.ADMIN_USERNAMES || "")
+    .split(",")
+    .map((u) => u.trim().toLowerCase())
+    .filter(Boolean);
+  if (envAdmins.includes(username.toLowerCase())) return true;
+  const row = db.prepare("SELECT 1 FROM admins WHERE username = ?").get(username.toLowerCase());
+  return !!row;
 };
 
 const RETENTION_DAYS = 60;
