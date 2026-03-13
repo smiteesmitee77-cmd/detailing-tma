@@ -488,6 +488,7 @@ textarea {
 .drum-scroll {
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -503,9 +504,11 @@ textarea {
   font-size: 0.9rem;
   color: rgba(200, 200, 200, 0.35);
   cursor: pointer;
-  scroll-snap-align: start;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
   transition: color 0.15s ease, font-size 0.15s ease;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .drum-item--active {
