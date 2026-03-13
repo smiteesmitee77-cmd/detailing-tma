@@ -949,6 +949,7 @@ textarea.input-error {
   margin: 0;
   font-size: 4rem;
   letter-spacing: 0.45em;
+  padding-left: 0.45em;
   font-weight: 700;
   text-transform: uppercase;
   background: linear-gradient(
@@ -1088,6 +1089,7 @@ textarea.input-error {
   .splash-title {
     font-size: 2.9rem;
     letter-spacing: 0.35em;
+    padding-left: 0.35em;
   }
 
   .splash-button {
