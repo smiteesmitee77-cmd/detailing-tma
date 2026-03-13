@@ -78,7 +78,11 @@ body {
 
 /* Вариант хедера для экрана "Мои записи" — чуть компактнее */
 .app-header--bookings {
-  padding: 40px 8px 24px;
+  padding: 56px 8px 24px;
+}
+
+.app-header--bookings .back-button {
+  top: 10px;
 }
 
 .app-header--bookings h1 {
