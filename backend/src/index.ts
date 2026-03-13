@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import { createBooking, getAllBookings, getBookingsByUserId, updateBookingStatus, deleteOldBookings } from "./db";
+import { createBooking, getAllBookings, getBookingsByUserId, updateBookingStatus, deleteOldBookings, getAllServices, getServiceById, upsertService, deleteService } from "./db";
 import { bot, notifyAdmin } from "./bot";
 import { validateTelegramInitData } from "./validateInitData";
 
@@ -63,37 +63,6 @@ function resolveUserId(rawHeader: string | string[] | undefined): ResolveResult 
   return { ok: true, userId: result.user ? String(result.user.id) : undefined };
 }
 
-type Service = {
-  id: string;
-  name: string;
-  description: string;
-  durationMinutes: number;
-  price: number;
-};
-
-const services: Service[] = [
-  {
-    id: "wrap",
-    name: "Оклейка авто",
-    description: "Защитная или декоративная оклейка кузова плёнкой.",
-    durationMinutes: 240,
-    price: 15000,
-  },
-  {
-    id: "wash",
-    name: "Мойка",
-    description: "Комплексная мойка кузова и салона.",
-    durationMinutes: 60,
-    price: 1500,
-  },
-  {
-    id: "tires",
-    name: "Замена шин",
-    description: "Сезонная переобувка и балансировка.",
-    durationMinutes: 90,
-    price: 2000,
-  },
-];
 
 /** Телефон: +7/8/7 + 10 цифр */
 const PHONE_RE = /^(\+7|7|8)\d{10}$/;
@@ -147,7 +116,7 @@ function validateTimeSlot(date: string, time: string, durationMinutes: number): 
   );
 
   for (const booking of existing) {
-    const svc = services.find((s) => s.id === booking.serviceId);
+    const svc = getServiceById(booking.serviceId);
     const dur = svc?.durationMinutes ?? 60;
     const bStart = timeToMinutes(booking.time);
     const bEnd   = bStart + dur;
@@ -165,7 +134,38 @@ app.get("/health", (_req, res) => {
 });
 
 app.get("/api/services", (_req, res) => {
-  res.json(services);
+  res.json(getAllServices());
+});
+
+// Управление услугами — только для бота/администратора (требует X-Bot-Secret)
+app.put("/api/services/:id", (req, res) => {
+  const BOT_SECRET = process.env.BOT_SECRET;
+  if (BOT_SECRET && req.headers["x-bot-secret"] !== BOT_SECRET) {
+    return res.status(403).json({ error: "Доступ запрещён." });
+  }
+  const { name, description, durationMinutes, price, sortOrder } = req.body || {};
+  if (!name || !durationMinutes || price === undefined) {
+    return res.status(400).json({ error: "Обязательные поля: name, durationMinutes, price." });
+  }
+  const service = upsertService({
+    id: req.params.id,
+    name,
+    description: description || "",
+    durationMinutes: Number(durationMinutes),
+    price: Number(price),
+    sortOrder: Number(sortOrder) || 0,
+  });
+  res.json(service);
+});
+
+app.delete("/api/services/:id", (req, res) => {
+  const BOT_SECRET = process.env.BOT_SECRET;
+  if (BOT_SECRET && req.headers["x-bot-secret"] !== BOT_SECRET) {
+    return res.status(403).json({ error: "Доступ запрещён." });
+  }
+  const ok = deleteService(req.params.id);
+  if (!ok) return res.status(404).json({ error: "Услуга не найдена." });
+  res.json({ success: true });
 });
 
 app.get("/api/bookings", (req, res) => {
@@ -191,7 +191,7 @@ app.post("/api/bookings", bookingLimiter, async (req, res) => {
     return res.status(400).json({ error: "Некорректный номер телефона. Формат: +79001234567" });
   }
 
-  const service = services.find((s) => s.id === serviceId);
+  const service = getServiceById(serviceId);
   if (!service) {
     return res.status(400).json({ error: "Выбранная услуга не найдена." });
   }

@@ -23,6 +23,29 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS services (
+    id              TEXT    PRIMARY KEY,
+    name            TEXT    NOT NULL,
+    description     TEXT    NOT NULL DEFAULT '',
+    durationMinutes INTEGER NOT NULL DEFAULT 60,
+    price           INTEGER NOT NULL DEFAULT 0,
+    sortOrder       INTEGER NOT NULL DEFAULT 0,
+    active          INTEGER NOT NULL DEFAULT 1
+  )
+`);
+
+// Засеваем дефолтные услуги если таблица пустая
+const serviceCount = (db.prepare("SELECT COUNT(*) as cnt FROM services").get() as { cnt: number }).cnt;
+if (serviceCount === 0) {
+  const insert = db.prepare(
+    "INSERT INTO services (id, name, description, durationMinutes, price, sortOrder) VALUES (?, ?, ?, ?, ?, ?)"
+  );
+  insert.run("wrap",  "Оклейка авто",  "Защитная или декоративная оклейка кузова плёнкой.", 240, 15000, 1);
+  insert.run("wash",  "Мойка",         "Комплексная мойка кузова и салона.",                  60,  1500, 2);
+  insert.run("tires", "Замена шин",    "Сезонная переобувка и балансировка.",                 90,  2000, 3);
+}
+
 // Миграция для существующих БД без колонки telegramUserId
 try {
   db.exec("ALTER TABLE bookings ADD COLUMN telegramUserId TEXT");
@@ -36,6 +59,43 @@ try {
 } catch {
   // колонка уже существует — пропускаем
 }
+
+export type Service = {
+  id: string;
+  name: string;
+  description: string;
+  durationMinutes: number;
+  price: number;
+  sortOrder: number;
+  active: number;
+};
+
+export const getAllServices = (): Service[] => {
+  return db.prepare("SELECT * FROM services WHERE active = 1 ORDER BY sortOrder ASC").all() as Service[];
+};
+
+export const getServiceById = (id: string): Service | undefined => {
+  return db.prepare("SELECT * FROM services WHERE id = ?").get(id) as Service | undefined;
+};
+
+export const upsertService = (data: Omit<Service, "active">): Service => {
+  db.prepare(`
+    INSERT INTO services (id, name, description, durationMinutes, price, sortOrder, active)
+    VALUES (@id, @name, @description, @durationMinutes, @price, @sortOrder, 1)
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      description = excluded.description,
+      durationMinutes = excluded.durationMinutes,
+      price = excluded.price,
+      sortOrder = excluded.sortOrder
+  `).run(data);
+  return getServiceById(data.id)!;
+};
+
+export const deleteService = (id: string): boolean => {
+  const result = db.prepare("UPDATE services SET active = 0 WHERE id = ?").run(id);
+  return result.changes > 0;
+};
 
 export type BookingStatus = "pending" | "confirmed" | "done" | "cancelled";
 
