@@ -1,7 +1,12 @@
 import Database from "better-sqlite3";
 import path from "path";
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, "..", "bookings.db");
+// На Render диск монтируется в /data, локально — рядом с проектом
+const DB_PATH = process.env.DB_PATH || (
+  process.env.NODE_ENV === "production"
+    ? "/data/bookings.db"
+    : path.join(__dirname, "..", "bookings.db")
+);
 
 const db = new Database(DB_PATH);
 

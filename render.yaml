@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: detailing-tma-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: BOT_TOKEN
+        sync: false
+      - key: WEBAPP_URL
+        sync: false
+      - key: ADMIN_CHAT_ID
+        sync: false
+      - key: BOT_SECRET
+        sync: false
+      - key: WEBHOOK_URL
+        sync: false
+      - key: ALLOWED_ORIGIN
+        sync: false
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1
