@@ -3,7 +3,7 @@ services:
     name: detailing-tma-backend
     runtime: node
     rootDir: backend
-    buildCommand: npm install --include=dev && npm run build && npm prune --production
+    buildCommand: npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
