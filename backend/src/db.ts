@@ -89,7 +89,7 @@ export const saveMessageRef = (bookingId: number, chatId: string, messageId: num
   db.prepare("UPDATE bookings SET msgChatId = ?, msgId = ? WHERE id = ?").run(chatId, messageId, bookingId);
 };
 
-const RETENTION_DAYS = 7;
+const RETENTION_DAYS = 60;
 
 /**
  * Удаляет записи, созданные более RETENTION_DAYS дней назад.
