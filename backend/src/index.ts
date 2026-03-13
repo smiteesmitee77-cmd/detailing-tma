@@ -330,15 +330,21 @@ async function startBot() {
   const webhookUrl = process.env.WEBHOOK_URL;
 
   if (webhookUrl) {
-    // Продакшн: Telegram сам шлёт обновления к нам на /webhook
     const secretPath = `/webhook/${process.env.BOT_TOKEN}`;
-    await bot.telegram.setWebhook(`${webhookUrl}${secretPath}`);
-    app.use(secretPath, bot.webhookCallback(secretPath));
-    console.log(`[bot] Webhook установлен: ${webhookUrl}${secretPath}`);
+    try {
+      await bot.telegram.setWebhook(`${webhookUrl}${secretPath}`);
+      app.use(secretPath, bot.webhookCallback(secretPath));
+      console.log(`[bot] Webhook установлен: ${webhookUrl}${secretPath}`);
+    } catch (e) {
+      // Не крашим сервер если Telegram недоступен при старте
+      console.error("[bot] Не удалось установить webhook:", e);
+    }
   } else {
-    // Dev: long polling (bot проверен выше через if (!bot))
     const _bot = bot;
-    _bot.launch().then(() => console.log("[bot] Long polling запущен."));
+    _bot
+      .launch()
+      .then(() => console.log("[bot] Long polling запущен."))
+      .catch((e) => console.error("[bot] Ошибка запуска long polling:", e));
     process.once("SIGINT", () => _bot.stop("SIGINT"));
     process.once("SIGTERM", () => _bot.stop("SIGTERM"));
   }
@@ -348,5 +354,6 @@ app.listen(PORT, () => {
   console.log(`Backend listening on http://localhost:${PORT}`);
   scheduleCleanup();
   scheduleReminders();
-  startBot();
+  // Не await — запуск бота не должен блокировать или крашить HTTP-сервер
+  startBot().catch((e) => console.error("[bot] Критическая ошибка при запуске:", e));
 });
