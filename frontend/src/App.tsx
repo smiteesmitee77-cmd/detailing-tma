@@ -544,22 +544,6 @@ function App() {
               </form>
             </section>
 
-            <section className="card card-secondary">
-              <div className="card-header-row">
-                <h2>Мои записи</h2>
-                <span className="badge">{bookings.length}</span>
-              </div>
-              {loading ? (
-                <div className="skeleton-list">
-                  {[1, 2].map((n) => <div key={n} className="skeleton-item" />)}
-                </div>
-              ) : bookings.length === 0 ? (
-                <p className="muted">Здесь появятся ваши записи</p>
-              ) : (
-                <MyBookingsContent />
-              )}
-            </section>
-
             <button
               type="button"
               className="my-bookings-nav-button"
