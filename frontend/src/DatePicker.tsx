@@ -76,24 +76,27 @@ function Drum({ items, selectedIndex, onSelect }: DrumProps) {
   );
 }
 
-const CURRENT_YEAR = 2026;
-
 export function DatePicker({ value, min, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const today = new Date(min);
-  const todayY = CURRENT_YEAR;
+  const todayY = today.getFullYear();
   const todayM = today.getMonth();
   const todayD = today.getDate();
 
   const parsed = value ? new Date(value) : today;
-  const [selYear, setSelYear] = useState(CURRENT_YEAR);
+  const [selYear, setSelYear] = useState(parsed.getFullYear());
   const [selMonth, setSelMonth] = useState(parsed.getMonth());
   const [selDay, setSelDay] = useState(parsed.getDate());
 
-  const years = [String(CURRENT_YEAR)];
-  const months = MONTHS.map((m, i) => ({ label: m, idx: i }));
+  // Показываем текущий и следующий год, чтобы можно было бронировать наперёд
+  const years = [String(todayY), String(todayY + 1)];
+  // Если выбранный год — это год today, запрещаем прошедшие месяцы
+  const availableMonths = MONTHS.map((m, i) => ({ label: m, idx: i })).filter(
+    (m) => selYear > todayY || m.idx >= todayM
+  );
+  const months = availableMonths;
   const totalDays = daysInMonth(selYear, selMonth);
   const minDay = selYear === todayY && selMonth === todayM ? todayD : 1;
   const days = Array.from({ length: totalDays - minDay + 1 }, (_, i) =>
@@ -111,8 +114,13 @@ export function DatePicker({ value, min, onChange }: Props) {
     setOpen(false);
   };
 
-  // adjust day if out of range after month/year change
+  // Корректируем месяц и день если они вышли за допустимый диапазон после смены года
   useEffect(() => {
+    // Если переключились на текущий год и выбран прошедший месяц — сдвигаем на todayM
+    if (selYear === todayY && selMonth < todayM) {
+      setSelMonth(todayM);
+      return;
+    }
     const max = daysInMonth(selYear, selMonth);
     const min2 = selYear === todayY && selMonth === todayM ? todayD : 1;
     if (selDay > max) setSelDay(max);
