@@ -40,6 +40,13 @@ db.exec(`
   )
 `);
 
+// Миграция: колонка для отметки об отправке напоминания
+try {
+  db.exec("ALTER TABLE bookings ADD COLUMN reminderSent INTEGER NOT NULL DEFAULT 0");
+} catch {
+  // колонка уже существует
+}
+
 // Засеваем дефолтные услуги если таблица пустая
 const serviceCount = (db.prepare("SELECT COUNT(*) as cnt FROM services").get() as { cnt: number }).cnt;
 if (serviceCount === 0) {
@@ -104,6 +111,17 @@ export const deleteService = (id: string): boolean => {
 
 export type BookingStatus = "pending" | "confirmed" | "done" | "cancelled";
 
+/** Возвращает активные записи на указанную дату, которым ещё не отправили напоминание */
+export const getBookingsForReminder = (date: string): Booking[] => {
+  return db.prepare(
+    "SELECT * FROM bookings WHERE date = ? AND status NOT IN ('cancelled', 'done') AND reminderSent = 0"
+  ).all(date) as Booking[];
+};
+
+export const markReminderSent = (id: number): void => {
+  db.prepare("UPDATE bookings SET reminderSent = 1 WHERE id = ?").run(id);
+};
+
 export type Booking = {
   id: number;
   serviceId: string;
@@ -119,6 +137,7 @@ export type Booking = {
   msgChatId?: string;
   msgId?: number;
   telegramUserId?: string;
+  reminderSent?: number;
 };
 
 export const createBooking = (data: Omit<Booking, "id" | "createdAt" | "status" | "msgChatId" | "msgId">): Booking => {

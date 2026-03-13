@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import { createBooking, getAllBookings, getBookingsByUserId, updateBookingStatus, deleteOldBookings, getAllServices, getServiceById, upsertService, deleteService } from "./db";
-import { bot, notifyAdmin } from "./bot";
+import { bot, notifyAdmin, sendReminders } from "./bot";
 import { validateTelegramInitData } from "./validateInitData";
 
 const app = express();
@@ -308,6 +308,22 @@ function scheduleCleanup() {
   timer.unref();
 }
 
+const REMINDER_INTERVAL_MS = 60 * 60 * 1000; // 1 час
+
+function scheduleReminders() {
+  if (!process.env.BOT_TOKEN) return;
+  // Первый запуск через 1 минуту после старта, затем каждый час
+  const initialDelay = setTimeout(() => {
+    sendReminders().catch((e) => console.error("[reminders] Ошибка:", e));
+    const timer = setInterval(
+      () => sendReminders().catch((e) => console.error("[reminders] Ошибка:", e)),
+      REMINDER_INTERVAL_MS
+    );
+    timer.unref();
+  }, 60 * 1000);
+  initialDelay.unref();
+}
+
 async function startBot() {
   if (!process.env.BOT_TOKEN) {
     console.warn("BOT_TOKEN не задан — бот не запущен.");
@@ -333,5 +349,6 @@ async function startBot() {
 app.listen(PORT, () => {
   console.log(`Backend listening on http://localhost:${PORT}`);
   scheduleCleanup();
+  scheduleReminders();
   startBot();
 });

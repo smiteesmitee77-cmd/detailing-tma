@@ -1,5 +1,5 @@
 import { Telegraf, Markup } from "telegraf";
-import { Booking, updateBookingStatus, saveMessageRef } from "./db";
+import { Booking, updateBookingStatus, saveMessageRef, getBookingsForReminder, markReminderSent } from "./db";
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
@@ -165,3 +165,44 @@ bot.start((ctx) => {
     ])
   );
 });
+
+/**
+ * Отправляет напоминания клиентам, у которых запись завтра.
+ * Вызывается каждый час из index.ts.
+ */
+export async function sendReminders(): Promise<void> {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+  const bookings = getBookingsForReminder(tomorrowStr);
+  if (bookings.length === 0) return;
+
+  console.log(`[reminders] Отправляем напоминания для ${bookings.length} записей на ${tomorrowStr}`);
+
+  for (const booking of bookings) {
+    if (!booking.telegramUserId) {
+      markReminderSent(booking.id);
+      continue;
+    }
+
+    const text = [
+      `🔔 <b>Напоминание о записи</b>`,
+      ``,
+      `Завтра у вас запись в детейлинг-центр CARBASE!`,
+      ``,
+      `🔧 <b>Услуга:</b> ${booking.serviceName}`,
+      `📅 <b>Дата:</b> ${booking.date} в ${booking.time}`,
+      `🚗 <b>Авто:</b> ${booking.carModel}`,
+      ``,
+      `Если планы изменились — откройте приложение и отмените запись.`,
+    ].join("\n");
+
+    try {
+      await bot.telegram.sendMessage(booking.telegramUserId, text, { parse_mode: "HTML" });
+      markReminderSent(booking.id);
+    } catch (e) {
+      console.error(`[reminders] Не удалось отправить напоминание для #${booking.id}:`, e);
+    }
+  }
+}
