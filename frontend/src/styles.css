@@ -899,6 +899,26 @@ textarea {
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
+/* ─── Cancel button ─── */
+.cancel-button {
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(220, 60, 60, 0.5);
+  border-radius: var(--radius-sm);
+  background: rgba(220, 60, 60, 0.08);
+  color: rgba(255, 100, 100, 0.9);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  align-self: flex-start;
+}
+
+.cancel-button:hover {
+  background: rgba(220, 60, 60, 0.18);
+  border-color: rgba(220, 60, 60, 0.75);
+}
+
 /* ─── Responsive ─── */
 @media (min-width: 800px) {
   .app-container {

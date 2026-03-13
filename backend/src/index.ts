@@ -223,6 +223,45 @@ app.post("/api/bookings", bookingLimiter, async (req, res) => {
   res.status(201).json(booking);
 });
 
+// Отмена своей брони клиентом — только авторизованный владелец может отменить
+app.post("/api/bookings/:id/cancel", (req, res) => {
+  const auth = resolveUserId(req.headers["x-telegram-init-data"]);
+  if (!auth.ok) return res.status(401).json({ error: auth.error });
+
+  const id = Number(req.params.id);
+  const booking = getAllBookings().find((b) => b.id === id);
+
+  if (!booking) {
+    return res.status(404).json({ error: "Бронь не найдена." });
+  }
+
+  // В dev-режиме (userId = undefined) отменять нельзя — требуется авторизация
+  if (!auth.userId) {
+    return res.status(403).json({ error: "Для отмены записи требуется авторизация через Telegram." });
+  }
+
+  if (booking.telegramUserId !== auth.userId) {
+    return res.status(403).json({ error: "Нельзя отменить чужую запись." });
+  }
+
+  if (booking.status === "cancelled") {
+    return res.status(400).json({ error: "Запись уже отменена." });
+  }
+
+  if (booking.status === "done") {
+    return res.status(400).json({ error: "Нельзя отменить выполненную запись." });
+  }
+
+  const updated = updateBookingStatus(id, "cancelled");
+
+  // Уведомляем администратора об отмене клиентом
+  if (updated) {
+    notifyAdmin(updated).catch((e) => console.error("Ошибка уведомления бота:", e));
+  }
+
+  res.json(updated);
+});
+
 app.patch("/api/bookings/:id/status", (req, res) => {
   // Эндпоинт предназначен только для бота. Проверяем секретный заголовок.
   const BOT_SECRET = process.env.BOT_SECRET;

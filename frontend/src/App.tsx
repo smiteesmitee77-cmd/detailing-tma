@@ -168,6 +168,29 @@ function App() {
     submitBooking();
   };
 
+  const cancelBooking = useCallback(async (bookingId: string) => {
+    if (!window.confirm("Отменить эту запись?")) return;
+    const initData = twa?.initData ?? "";
+    try {
+      const res = await fetch(`${API_BASE}/api/bookings/${bookingId}/cancel`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(initData ? { "X-Telegram-Init-Data": initData } : {}),
+        },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(body?.error || "Не удалось отменить запись.");
+        return;
+      }
+      const updated: Booking = await res.json();
+      setBookings((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
+    } catch {
+      setError("Ошибка сети. Попробуйте ещё раз.");
+    }
+  }, [twa]);
+
   // Авто-закрытие WebApp через 2.5с после успешной записи
   useEffect(() => {
     if (!success || !isInTelegram) return;
@@ -413,6 +436,15 @@ function App() {
                       <span className="comment">«{b.comment}»</span>
                     )}
                   </div>
+                  {(b.status === "pending" || b.status === "confirmed") && isInTelegram && (
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => cancelBooking(b.id)}
+                    >
+                      Отменить
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
