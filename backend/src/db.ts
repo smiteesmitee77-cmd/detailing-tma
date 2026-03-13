@@ -1,12 +1,37 @@
 import Database from "better-sqlite3";
+import fs from "fs";
 import path from "path";
 
-// На Render диск монтируется в /data, локально — рядом с проектом
-const DB_PATH = process.env.DB_PATH || (
-  process.env.NODE_ENV === "production"
-    ? "/data/bookings.db"
-    : path.join(__dirname, "..", "bookings.db")
-);
+function resolveDbPath(): string {
+  // Приоритет: явная переменная → /data (Render disk) → рядом с dist/
+  const candidates = [
+    process.env.DB_PATH,
+    process.env.NODE_ENV === "production" ? "/data/bookings.db" : undefined,
+    path.join(__dirname, "..", "bookings.db"),
+  ].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    const dir = path.dirname(candidate);
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      // Проверяем что директория доступна для записи
+      fs.accessSync(dir, fs.constants.W_OK);
+      return candidate;
+    } catch {
+      console.warn(`[db] Директория ${dir} недоступна, пробуем следующий вариант...`);
+    }
+  }
+
+  // Абсолютный fallback — текущая рабочая директория
+  const fallback = path.join(process.cwd(), "bookings.db");
+  console.warn(`[db] Используем fallback путь: ${fallback}`);
+  return fallback;
+}
+
+const DB_PATH = resolveDbPath();
+console.log(`[db] База данных: ${DB_PATH}`);
 
 const db = new Database(DB_PATH);
 
