@@ -948,12 +948,11 @@ textarea.input-error {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #080808;
   animation: splashIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .splash-screen--exit {
-  animation: splashOut 0.56s cubic-bezier(0.4, 0, 1, 1) forwards;
+  animation: splashOut 0.6s cubic-bezier(0.4, 0, 0.6, 1) forwards;
   pointer-events: none;
 }
 
@@ -963,8 +962,8 @@ textarea.input-error {
 }
 
 @keyframes splashOut {
-  from { opacity: 1; transform: scale(1) translateY(0); }
-  to   { opacity: 0; transform: scale(1.05) translateY(-12px); }
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 .splash-content {
@@ -977,7 +976,7 @@ textarea.input-error {
 }
 
 .splash-screen--exit .splash-content {
-  animation: splashContentOut 0.45s cubic-bezier(0.4, 0, 1, 1) forwards;
+  animation: splashContentOut 0.5s cubic-bezier(0.4, 0, 0.6, 1) forwards;
 }
 
 @keyframes splashContentIn {
@@ -986,8 +985,8 @@ textarea.input-error {
 }
 
 @keyframes splashContentOut {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-28px); }
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-36px) scale(0.96); }
 }
 
 .splash-logo {
@@ -1109,13 +1108,18 @@ textarea.input-error {
   animation: none;
 }
 
-/* ─── Main content entering animation ─── */
+/* ─── Main content visibility states ─── */
+.app-invisible {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .app-entering {
-  animation: appEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: appEnter 0.72s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes appEnter {
-  from { opacity: 0; transform: translateY(22px); }
+  from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 

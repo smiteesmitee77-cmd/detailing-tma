@@ -320,8 +320,10 @@ function App() {
         </div>
       )}
 
-      {!showSplash && (
-      <main className="app-container app-entering" style={isInTelegram ? { paddingBottom: "80px" } : undefined}>
+      <main
+        className={`app-container${splashExiting || !showSplash ? " app-entering" : " app-invisible"}`}
+        style={isInTelegram ? { paddingBottom: "80px" } : undefined}
+      >
         <header className="app-header">
           <h1>CARBASE</h1>
           <p>Оклейка · Мойка · Шиномонтаж</p>
@@ -514,7 +516,6 @@ function App() {
           )}
         </section>
       </main>
-      )}
     </div>
   );
 }
